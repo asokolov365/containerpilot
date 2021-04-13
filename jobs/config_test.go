@@ -379,7 +379,7 @@ func TestJobConfigValidateExec(t *testing.T) {
 		timeout: "xx"
 	}]`)
 	_, err = NewConfigs(testCfg, noop)
-	expected := "unable to parse job[serviceC].timeout 'xx': time: invalid duration xx"
+	expected := "unable to parse job[serviceC].timeout 'xx': time: invalid duration \"xx\""
 	if err == nil || err.Error() != expected {
 		t.Fatalf("expected '%s', got '%v'", expected, err)
 	}

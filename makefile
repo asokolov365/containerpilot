@@ -12,6 +12,7 @@ LDFLAGS := -X ${IMPORT_PATH}/version.GitHash=$(shell git rev-parse --short HEAD)
 ROOT := $(shell pwd)
 RUNNER := -v ${ROOT}:/go/src/${IMPORT_PATH} -w /go/src/${IMPORT_PATH} containerpilot_build
 docker := docker run --rm -e LDFLAGS="${LDFLAGS}" $(RUNNER)
+date := $(shell date)
 export PATH :=$(PATH):$(GOPATH)/bin
 
 # flags for local development
@@ -31,6 +32,7 @@ help:
 	@echo "on your workstation (ex. 'make local test'). You will need to have its GOPATH set"
 	@echo "and have already run 'make tools'. Set GOOS=linux to build binaries for Docker."
 	@echo "Do not use 'make local' for building binaries for public release!"
+	@echo "Before packaging always run 'make clean build test integration'!"
 	@echo
 	@awk '/^##.*$$/,/[a-zA-Z_-]+:/' $(MAKEFILE_LIST) | awk '!(NR%2){print $$0p}{p=$$0}' | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}' | sort
 
@@ -76,14 +78,16 @@ clean:
 vendor: build/deps-installed
 build/deps-installed: build/containerpilot_build go.mod
 	mkdir -p vendor
+	mkdir -p ${ROOT}/build
 	$(docker) go mod vendor -v
-	@echo date > build/deps-installed
+	@echo $(date) > build/deps-installed
 
 ## install all vendored packages in the go.mod
 dep-install:
 	mkdir -p vendor
+	mkdir -p ${ROOT}/build
 	$(docker) go mod vendor -v
-	@echo date > build/deps-installed
+	@echo $(date) > build/deps-installed
 
 # run 'GOOS=darwin make tools' if you're installing on MacOS
 ## set up local dev environment

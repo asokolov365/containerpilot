@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/joyent/containerpilot/tests/mocks"
+	"github.com/asokolov365/containerpilot/tests/mocks"
 )
 
 func TestTelemetryServerRestart(t *testing.T) {

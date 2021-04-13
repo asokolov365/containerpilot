@@ -6,8 +6,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/joyent/containerpilot/discovery"
-	"github.com/joyent/containerpilot/events"
+	"github.com/asokolov365/containerpilot/discovery"
+	"github.com/asokolov365/containerpilot/events"
 )
 
 // Watch represents an event to signal when something changes

@@ -1,13 +1,13 @@
 # Installation
 
-ContainerPilot is a statically-linked binary. Pre-compiled releases for Linux can be found on the [project releases page on GitHub](https://github.com/joyent/containerpilot/releases). The best way to install ContainerPilot in a Docker container is by including it in the Dockerfile:
+ContainerPilot is a statically-linked binary. Pre-compiled releases for Linux can be found on the [project releases page on GitHub](https://github.com/asokolov365/containerpilot/releases). The best way to install ContainerPilot in a Docker container is by including it in the Dockerfile:
 
 ```
 # get ContainerPilot release
 ENV CONTAINERPILOT_VERSION 3.0.0
 RUN export checksum=a669f76aae9b3472f01eaf63f13e824fc2434692 \
     && curl -Lso /tmp/containerpilot.tar.gz \
-         "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.tar.gz" \
+         "https://github.com/asokolov365/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.tar.gz" \
     && echo "${checksum}  /tmp/containerpilot.tar.gz" | sha1sum -c \
     && tar zxf /tmp/containerpilot.tar.gz -C /usr/local/bin \
     && rm /tmp/containerpilot.tar.gz

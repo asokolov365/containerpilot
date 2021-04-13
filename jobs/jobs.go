@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/joyent/containerpilot/commands"
-	"github.com/joyent/containerpilot/discovery"
-	"github.com/joyent/containerpilot/events"
+	"github.com/asokolov365/containerpilot/commands"
+	"github.com/asokolov365/containerpilot/discovery"
+	"github.com/asokolov365/containerpilot/events"
 	log "github.com/sirupsen/logrus"
 )
 

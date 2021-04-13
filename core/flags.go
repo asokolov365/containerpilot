@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/joyent/containerpilot/subcommands"
-	"github.com/joyent/containerpilot/version"
+	"github.com/asokolov365/containerpilot/subcommands"
+	"github.com/asokolov365/containerpilot/version"
 )
 
 // MultiFlag provides a custom CLI flag that stores its unique values into a

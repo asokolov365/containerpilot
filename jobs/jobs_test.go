@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/joyent/containerpilot/events"
+	"github.com/asokolov365/containerpilot/events"
 )
 
 func TestJobRunSafeClose(t *testing.T) {

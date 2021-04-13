@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/joyent/containerpilot/jobs"
-	"github.com/joyent/containerpilot/watches"
+	"github.com/asokolov365/containerpilot/jobs"
+	"github.com/asokolov365/containerpilot/watches"
 )
 
 // Status persists all the data the telemetry server needs to serve

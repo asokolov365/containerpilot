@@ -5,7 +5,7 @@ SHELL := /bin/bash
 
 .PHONY: clean test integration consul ship dockerfile docker cover lint local vendor dep-* tools kirby
 
-IMPORT_PATH := github.com/joyent/containerpilot
+IMPORT_PATH := github.com/asokolov365/containerpilot
 VERSION ?= dev-build-not-for-release
 LDFLAGS := -X ${IMPORT_PATH}/version.GitHash=$(shell git rev-parse --short HEAD) -X ${IMPORT_PATH}/version.Version=${VERSION}
 
@@ -151,7 +151,7 @@ cover: build/containerpilot_build
 
 ## generate stringer code
 generate:
-	go install github.com/joyent/containerpilot/events
+	go install github.com/asokolov365/containerpilot/events
 	cd events && stringer -type EventCode
 	# fix this up for making it pass linting
 	sed -i '.bak' 's/_EventCode_/eventCode/g' ./events/eventcode_string.go

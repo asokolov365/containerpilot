@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/joyent/containerpilot/tests"
+	"github.com/asokolov365/containerpilot/tests"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

@@ -10,7 +10,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joyent/containerpilot/events"
+	"github.com/asokolov365/containerpilot/events"
 	log "github.com/sirupsen/logrus"
 )
 

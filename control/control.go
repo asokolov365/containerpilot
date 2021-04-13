@@ -11,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/joyent/containerpilot/events"
+	"github.com/asokolov365/containerpilot/events"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )

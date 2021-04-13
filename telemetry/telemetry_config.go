@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/joyent/containerpilot/config/decode"
-	"github.com/joyent/containerpilot/config/services"
-	"github.com/joyent/containerpilot/discovery"
-	"github.com/joyent/containerpilot/jobs"
-	"github.com/joyent/containerpilot/version"
+	"github.com/asokolov365/containerpilot/config/decode"
+	"github.com/asokolov365/containerpilot/config/services"
+	"github.com/asokolov365/containerpilot/discovery"
+	"github.com/asokolov365/containerpilot/jobs"
+	"github.com/asokolov365/containerpilot/version"
 )
 
 // Config represents the service to advertise for finding the metrics

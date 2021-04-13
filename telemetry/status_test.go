@@ -9,10 +9,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/joyent/containerpilot/jobs"
-	"github.com/joyent/containerpilot/tests"
-	"github.com/joyent/containerpilot/tests/mocks"
-	"github.com/joyent/containerpilot/watches"
+	"github.com/asokolov365/containerpilot/jobs"
+	"github.com/asokolov365/containerpilot/tests"
+	"github.com/asokolov365/containerpilot/tests/mocks"
+	"github.com/asokolov365/containerpilot/watches"
 )
 
 func TestStatusServerPostInvalid(t *testing.T) {

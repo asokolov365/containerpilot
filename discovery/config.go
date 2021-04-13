@@ -4,8 +4,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/asokolov365/containerpilot/config/decode"
 	"github.com/hashicorp/consul/api"
-	"github.com/joyent/containerpilot/config/decode"
 )
 
 type parsedConfig struct {

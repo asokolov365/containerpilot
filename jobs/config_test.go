@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/joyent/containerpilot/events"
-	"github.com/joyent/containerpilot/tests"
-	"github.com/joyent/containerpilot/tests/mocks"
+	"github.com/asokolov365/containerpilot/events"
+	"github.com/asokolov365/containerpilot/tests"
+	"github.com/asokolov365/containerpilot/tests/mocks"
 )
 
 // ---------------------------------------------------------------------
@@ -58,12 +58,12 @@ func TestJobConfigHealthTimeout(t *testing.T) {
 
 	job0 := jobs[0]
 	assert.Equal(job0.Name, "serviceA", "config for job0.Name")
-	assert.Equal(job0.heartbeatInterval, time.Duration(10) * time.Second, "config for job0.Health")
-	assert.Equal(job0.healthCheckExec.Timeout, time.Duration(5) * time.Second, "config for job0.Name.Health")
+	assert.Equal(job0.heartbeatInterval, time.Duration(10)*time.Second, "config for job0.Health")
+	assert.Equal(job0.healthCheckExec.Timeout, time.Duration(5)*time.Second, "config for job0.Name.Health")
 
 	job1 := jobs[1]
 	assert.Equal(job1.Name, "serviceB", "config for job1.Name")
-	assert.Equal(job1.heartbeatInterval, time.Duration(10) * time.Second, "config for job1.Health")
+	assert.Equal(job1.heartbeatInterval, time.Duration(10)*time.Second, "config for job1.Health")
 	assert.Equal(job1.healthCheckExec.Timeout, job1.heartbeatInterval, "config for job1.Health")
 }
 

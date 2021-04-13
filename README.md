@@ -3,8 +3,8 @@
 *An init system for cloud-native distributed applications that automates the process of service discovery, configuration, and lifecycle management inside the container, so you can focus on your apps.*
 
 [![Build Status](https://travis-ci.org/joyent/containerpilot.svg)](https://travis-ci.org/joyent/containerpilot)
-[![MPL licensed](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://github.com/joyent/containerpilot/blob/master/LICENSE)
-[![GoDoc](https://godoc.org/github.com/joyent/containerpilot?status.svg)](https://godoc.org/github.com/joyent/containerpilot)
+[![MPL licensed](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://github.com/asokolov365/containerpilot/blob/master/LICENSE)
+[![GoDoc](https://godoc.org/github.com/asokolov365/containerpilot?status.svg)](https://godoc.org/github.com/asokolov365/containerpilot)
 
 ## What is ContainerPilot?
 
@@ -35,7 +35,7 @@ open http://localhost
 
 This application blueprint demonstrates using ContainerPilot to update Nginx upstream configuration at runtime. Try scaling up via `docker-compose scale hello=2 world=3` to see the Nginx configuration updated.
 
-You can also [download](https://github.com/joyent/containerpilot/releases) the latest release of ContainerPilot from GitHub.
+You can also [download](https://github.com/asokolov365/containerpilot/releases) the latest release of ContainerPilot from GitHub.
 
 ## Documentation
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/joyent/containerpilot/tests"
+	"github.com/asokolov365/containerpilot/tests"
 )
 
 func TestWatchesParse(t *testing.T) {

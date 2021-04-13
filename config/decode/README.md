@@ -1,3 +1,3 @@
 ## decode
 
-[![GoDoc](https://godoc.org/github.com/joyent/containerpilot?status.svg)](https://godoc.org/github.com/joyent/containerpilot/config/decode)
+[![GoDoc](https://godoc.org/github.com/asokolov365/containerpilot?status.svg)](https://godoc.org/github.com/asokolov365/containerpilot/config/decode)

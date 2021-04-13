@@ -10,13 +10,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/joyent/containerpilot/config"
-	"github.com/joyent/containerpilot/control"
-	"github.com/joyent/containerpilot/discovery"
-	"github.com/joyent/containerpilot/events"
-	"github.com/joyent/containerpilot/jobs"
-	"github.com/joyent/containerpilot/telemetry"
-	"github.com/joyent/containerpilot/watches"
+	"github.com/asokolov365/containerpilot/config"
+	"github.com/asokolov365/containerpilot/control"
+	"github.com/asokolov365/containerpilot/discovery"
+	"github.com/asokolov365/containerpilot/events"
+	"github.com/asokolov365/containerpilot/jobs"
+	"github.com/asokolov365/containerpilot/telemetry"
+	"github.com/asokolov365/containerpilot/watches"
 
 	log "github.com/sirupsen/logrus"
 )

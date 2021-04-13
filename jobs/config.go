@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/joyent/containerpilot/commands"
-	"github.com/joyent/containerpilot/config/decode"
-	"github.com/joyent/containerpilot/config/services"
-	"github.com/joyent/containerpilot/config/timing"
-	"github.com/joyent/containerpilot/discovery"
-	"github.com/joyent/containerpilot/events"
+	"github.com/asokolov365/containerpilot/commands"
+	"github.com/asokolov365/containerpilot/config/decode"
+	"github.com/asokolov365/containerpilot/config/services"
+	"github.com/asokolov365/containerpilot/config/timing"
+	"github.com/asokolov365/containerpilot/discovery"
+	"github.com/asokolov365/containerpilot/events"
 	log "github.com/sirupsen/logrus"
 )
 

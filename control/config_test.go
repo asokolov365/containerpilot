@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joyent/containerpilot/tests"
+	"github.com/asokolov365/containerpilot/tests"
 )
 
 func TestControlConfigDefault(t *testing.T) {

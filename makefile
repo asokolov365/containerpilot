@@ -21,8 +21,7 @@ GOARCH ?= $(shell go env GOARCH)
 CGO_ENABLED := 0
 GOEXPERIMENT := framepointer
 
-CONSUL_VERSION := 1.0.0
-GLIDE_VERSION := 0.12.3
+CONSUL_VERSION := 1.9.4
 
 ## display this help message
 help:
@@ -41,7 +40,7 @@ help:
 
 ## build the ContainerPilot binary
 build: build/containerpilot
-build/containerpilot:  build/containerpilot_build build/glide-installed */*/*.go */*.go */*/*.go *.go
+build/containerpilot:  build/containerpilot_build build/deps-installed */*/*.go */*.go */*/*.go *.go
 	$(docker) go build -o build/containerpilot -ldflags "$(LDFLAGS)"
 	@rm -rf src || true
 
@@ -57,8 +56,8 @@ build/containerpilot_build:
 release: build
 	mkdir -p release
 	git tag $(VERSION)
-	git push joyent --tags
-	cd build && tar -czf ../release/containerpilot-$(VERSION).tar.gz containerpilot
+	git push asokolov365 --tags
+	cd build && tar -cfz ../release/containerpilot-$(VERSION).tar.gz containerpilot
 	@echo
 	@cd release && sha1sum containerpilot-$(VERSION).tar.gz
 	@cd release && sha1sum containerpilot-$(VERSION).tar.gz > containerpilot-$(VERSION).sha1.txt
@@ -66,47 +65,35 @@ release: build
 
 ## remove build/test artifacts, test fixtures, and vendor directories
 clean:
-	rm -rf build release cover vendor .glide
+	rm -rf build release cover vendor
 	docker rmi -f containerpilot_build > /dev/null 2>&1 || true
 	docker rm -f containerpilot_consul > /dev/null 2>&1 || true
 	./scripts/test.sh clean
 
 # ----------------------------------------------
 # dependencies
-# NOTE: glide will be replaced with `dep` when its production-ready
-# ref https://github.com/golang/dep
-
-## install any changed packages in the glide.yaml
-vendor: build/glide-installed
-build/glide-installed: build/containerpilot_build glide.yaml
-	$(docker) glide install
+## install any changed packages in the go.mod
+vendor: build/deps-installed
+build/deps-installed: build/containerpilot_build go.mod
 	mkdir -p vendor
-	@echo date > build/glide-installed
+	$(docker) go mod vendor -v
+	@echo date > build/deps-installed
 
-## install all vendored packages in the glide.yaml
+## install all vendored packages in the go.mod
 dep-install:
 	mkdir -p vendor
-	$(docker) glide install
-	@echo date > build/glide-installed
-
-# usage DEP=github.com/owner/package make dep-add
-## fetch a dependency and vendor it via `glide`
-dep-add: build/containerpilot_build
-	$(docker) bash -c "DEP=$(DEP) ./scripts/add_dep.sh"
+	$(docker) go mod vendor -v
+	@echo date > build/deps-installed
 
 # run 'GOOS=darwin make tools' if you're installing on MacOS
 ## set up local dev environment
 tools:
-	@go version | grep 1.9 || (echo 'WARNING: go1.9 should be installed!')
+	@go version | grep 1.16 || (echo 'WARNING: go1.16 should be installed!')
 	@$(if $(value GOPATH),, $(error 'GOPATH not set'))
-	go get github.com/golang/lint/golint
-	curl --fail -Lso glide.tgz "https://github.com/Masterminds/glide/releases/download/v$(GLIDE_VERSION)/glide-v$(GLIDE_VERSION)-$(GOOS)-$(GOARCH).tar.gz"
-	tar -C "$(GOPATH)/bin" -xzf glide.tgz --strip=1 $(GOOS)-$(GOARCH)/glide
-	rm glide.tgz
+	go get golang.org/x/lint
 	curl --fail -Lso consul.zip "https://releases.hashicorp.com/consul/$(CONSUL_VERSION)/consul_$(CONSUL_VERSION)_$(GOOS)_$(GOARCH).zip"
 	unzip consul.zip -d "$(GOPATH)/bin"
 	rm consul.zip
-
 
 # ----------------------------------------------
 # develop and test
@@ -115,7 +102,6 @@ tools:
 debug:
 	@$(if $(value DOCKER_HOST), echo "DOCKER_HOST=$(DOCKER_HOST)", echo 'DOCKER_HOST not set')
 	@echo CGO_ENABLED=$(CGO_ENABLED)
-	@echo GO15VENDOREXPERIMENT=$(GO15VENDOREXPERIMENT)
 	@echo GOARCH=$(GOARCH)
 	@echo GOEXPERIMENT=$(GOEXPERIMENT)
 	@echo GOOS=$(GOOS)

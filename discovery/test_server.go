@@ -9,16 +9,16 @@ import (
 	"os/exec"
 	"strconv"
 
-	"github.com/hashicorp/consul/testutil/retry"
+	"github.com/hashicorp/consul/sdk/testutil/retry"
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 )
 
 // TestServer represents a Consul server we can run our tests against. Depends
 // on a local `consul` binary installed into our environ's PATH.
 type TestServer struct {
-	HTTPAddr string
-	cmd      *exec.Cmd
-	client   *http.Client
+	cmd        *exec.Cmd
+	HTTPAddr   string
+	HTTPClient *http.Client
 }
 
 // NewTestServer constructs a new TestServer by including the httpPort as well.
@@ -39,9 +39,9 @@ func NewTestServer(httpPort int) (*TestServer, error) {
 
 	httpAddr := fmt.Sprintf("127.0.0.1:%d", httpPort)
 
-	client := cleanhttp.DefaultClient()
+	httpClient := cleanhttp.DefaultClient()
 
-	return &TestServer{httpAddr, cmd, client}, nil
+	return &TestServer{cmd, httpAddr, httpClient}, nil
 }
 
 // Stop stops a TestServer
@@ -64,7 +64,8 @@ type failer struct {
 	failed bool
 }
 
-func (f *failer) Log(args ...interface{}) { fmt.Println(args) }
+func (f *failer) Helper()                 { fmt.Println("TODO: Helper() is not implemented") }
+func (f *failer) Log(args ...interface{}) { fmt.Println(args...) }
 func (f *failer) FailNow()                { f.failed = true }
 
 // WaitForAPI waits for only the agent HTTP endpoint to start responding. This
@@ -73,7 +74,7 @@ func (f *failer) FailNow()                { f.failed = true }
 func (s *TestServer) WaitForAPI() error {
 	f := &failer{}
 	retry.Run(f, func(r *retry.R) {
-		resp, err := s.client.Get(s.HTTPAddr + "/v1/agent/self")
+		resp, err := s.HTTPClient.Get(s.HTTPAddr + "/v1/agent/self")
 		if err != nil {
 			r.Fatal(err)
 		}
@@ -84,7 +85,7 @@ func (s *TestServer) WaitForAPI() error {
 		}
 	})
 	if f.failed {
-		return errors.New("failed waiting for API")
+		return fmt.Errorf("api is unavailable")
 	}
 	return nil
 }

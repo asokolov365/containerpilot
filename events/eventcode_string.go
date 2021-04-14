@@ -2,7 +2,30 @@
 
 package events
 
-import "fmt"
+import "strconv"
+
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[None-0]
+	_ = x[ExitSuccess-1]
+	_ = x[ExitFailed-2]
+	_ = x[Stopping-3]
+	_ = x[Stopped-4]
+	_ = x[StatusHealthy-5]
+	_ = x[StatusUnhealthy-6]
+	_ = x[StatusChanged-7]
+	_ = x[TimerExpired-8]
+	_ = x[EnterMaintenance-9]
+	_ = x[ExitMaintenance-10]
+	_ = x[Error-11]
+	_ = x[Quit-12]
+	_ = x[Metric-13]
+	_ = x[Startup-14]
+	_ = x[Shutdown-15]
+	_ = x[Signal-16]
+}
 
 const eventCodename = "NoneExitSuccessExitFailedStoppingStoppedStatusHealthyStatusUnhealthyStatusChangedTimerExpiredEnterMaintenanceExitMaintenanceErrorQuitMetricStartupShutdownSignal"
 
@@ -10,7 +33,7 @@ var eventCodeindex = [...]uint8{0, 4, 15, 25, 33, 40, 53, 68, 81, 93, 109, 124, 
 
 func (i EventCode) String() string {
 	if i < 0 || i >= EventCode(len(eventCodeindex)-1) {
-		return fmt.Sprintf("EventCode(%d)", i)
+		return "EventCode(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return eventCodename[eventCodeindex[i]:eventCodeindex[i+1]]
 }

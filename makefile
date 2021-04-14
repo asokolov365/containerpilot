@@ -95,6 +95,7 @@ tools:
 	@go version | grep 1.16 || (echo 'WARNING: go1.16 should be installed!')
 	@$(if $(value GOPATH),, $(error 'GOPATH not set'))
 	go get golang.org/x/lint
+	go get golang.org/x/tools/cmd/stringer
 	curl --fail -Lso consul.zip "https://releases.hashicorp.com/consul/$(CONSUL_VERSION)/consul_$(CONSUL_VERSION)_$(GOOS)_$(GOARCH).zip"
 	unzip consul.zip -d "$(GOPATH)/bin"
 	rm consul.zip
@@ -103,7 +104,7 @@ tools:
 # develop and test
 
 ## print environment info about this dev environment
-debug:
+env:
 	@$(if $(value DOCKER_HOST), echo "DOCKER_HOST=$(DOCKER_HOST)", echo 'DOCKER_HOST not set')
 	@echo CGO_ENABLED=$(CGO_ENABLED)
 	@echo GOARCH=$(GOARCH)

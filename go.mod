@@ -26,6 +26,5 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20200930160638-afb6bcd081ae // indirect
-	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 )

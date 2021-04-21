@@ -12,7 +12,7 @@ func TestValidateName(t *testing.T) {
 		"my-service-123",
 	}
 	for _, name := range validNames {
-		if err := ValidateName(name); err != nil {
+		if err := ValidateName(name, "consul"); err != nil {
 			t.Errorf("expected no error for name '%v' but got %v", name, err)
 		}
 	}
@@ -23,7 +23,7 @@ func TestValidateName(t *testing.T) {
 		"my%service",
 	}
 	for _, name := range invalidNames {
-		if err := ValidateName(name); err == nil {
+		if err := ValidateName(name, "consul"); err == nil {
 			t.Errorf("expected error for name '%v' but got nil", name)
 		}
 	}

@@ -140,7 +140,7 @@ func TestReloadConfig(t *testing.T) {
 	if err != nil {
 		t.Errorf("valid configuration returned error: %v", err)
 	}
-	discSvc := app.Discovery
+	discSvc := app.SurveilServices.Discovery
 	if svc, ok := discSvc.(*discovery.Consul); !ok || svc == nil {
 		t.Errorf("configuration was not reloaded: %v", discSvc)
 	}

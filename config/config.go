@@ -17,6 +17,7 @@ import (
 	"github.com/asokolov365/containerpilot/control"
 	"github.com/asokolov365/containerpilot/discovery"
 	"github.com/asokolov365/containerpilot/jobs"
+	"github.com/asokolov365/containerpilot/surveillee"
 	"github.com/asokolov365/containerpilot/telemetry"
 	"github.com/asokolov365/containerpilot/watches"
 )
@@ -33,7 +34,7 @@ type rawConfig struct {
 
 // Config contains the parsed config elements
 type Config struct {
-	Discovery   discovery.Backend
+	Surveillees *surveillee.Services
 	LogConfig   *logger.Config
 	StopTimeout int
 	Jobs        []*jobs.Config
@@ -132,16 +133,19 @@ func newConfig(configData []byte) (*Config, error) {
 	}
 
 	raw := &rawConfig{}
-	if err = decodeConfig(configMap, raw); err != nil {
+	if err = validateConfigByDecode(configMap, raw); err != nil {
 		return nil, err
 	}
 	cfg := &Config{}
 
+	// Surveillees
 	disc, err := discovery.NewConsul(raw.consul)
 	if err != nil {
 		return nil, err
 	}
-	cfg.Discovery = disc
+	fileWatcher := surveillee.NewFileWatcher()
+	survSvcs := surveillee.NewServices(disc, fileWatcher)
+	cfg.Surveillees = survSvcs
 
 	cfg.LogConfig = raw.logConfig
 
@@ -163,7 +167,7 @@ func newConfig(configData []byte) (*Config, error) {
 	}
 	cfg.Jobs = jobConfigs
 
-	watches, err := watches.NewConfigs(raw.watches, disc)
+	watches, err := watches.NewConfigs(raw.watches, survSvcs)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse watches: %v", err)
 	}
@@ -234,7 +238,7 @@ func highlightError(data []byte, pos int64) (int, int, string) {
 // We can't use mapstructure to decode our config map since we want the values
 // to also be raw interface{} types. mapstructure can only decode
 // into concrete structs and primitives
-func decodeConfig(configMap map[string]interface{}, result *rawConfig) error {
+func validateConfigByDecode(configMap map[string]interface{}, result *rawConfig) error {
 	var logConfig logger.Config
 	var stopTimeout int
 	if err := decode.ToStruct(configMap["logging"], &logConfig); err != nil {

@@ -5,17 +5,25 @@ import (
 	"regexp"
 )
 
-var validName = regexp.MustCompile(`^[a-z][a-zA-Z0-9\-]+$`)
+var validConsulServiceName = regexp.MustCompile(`^[a-z][a-zA-Z0-9\-]+$`)
+var validFilePathName = regexp.MustCompile(`^(\/[a-zA-Z0-9\_\-\s\.]+)+(\.[a-zA-Z0-9]+)?$`)
 
 // ValidateName checks if the service name passed as an argument
 // is is alpha-numeric with dashes. This ensures compliance with both DNS
 // and discovery backends.
-func ValidateName(name string) error {
+func ValidateName(name, svcType string) error {
 	if name == "" {
 		return fmt.Errorf("'name' must not be blank")
 	}
-	if ok := validName.MatchString(name); !ok {
-		return fmt.Errorf("service names must be alphanumeric with dashes to comply with service discovery")
+	switch svcType {
+	case "file":
+		if ok := validFilePathName.MatchString(name); !ok {
+			return fmt.Errorf("service name must be valid file path")
+		}
+	default:
+		if ok := validConsulServiceName.MatchString(name); !ok {
+			return fmt.Errorf("service name must be alphanumeric with dashes to comply with service discovery")
+		}
 	}
 	return nil
 }

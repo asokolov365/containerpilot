@@ -37,7 +37,7 @@ func TestConsulAddressParse(t *testing.T) {
 
 func runParseTest(t *testing.T, uri, expectedAddress, expectedScheme string) {
 
-	address, scheme := parseRawURI(uri)
+	address, scheme := parseRawConsulURI(uri)
 	if address != expectedAddress || scheme != expectedScheme {
 		t.Fatalf("Expected %s over %s but got %s over %s",
 			expectedAddress, expectedScheme, address, scheme)
@@ -204,12 +204,12 @@ func testConsulEnableTagOverride(testServer *TestServer) func(*testing.T) {
 
 func generateServiceDefinition(serviceName string, consul *Consul) *ServiceDefinition {
 	return &ServiceDefinition{
-		ID:        serviceName,
-		Name:      serviceName,
-		IPAddress: "192.168.1.1",
+		ID:            serviceName,
+		Name:          serviceName,
+		IPAddress:     "192.168.1.1",
 		InitialStatus: "warning",
-		TTL:       5,
-		Port:      9000,
-		Consul:    consul,
+		TTL:           5,
+		Port:          9000,
+		Consul:        consul,
 	}
 }

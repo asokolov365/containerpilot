@@ -6,19 +6,19 @@ import (
 	"context"
 	"time"
 
-	"github.com/asokolov365/containerpilot/discovery"
 	"github.com/asokolov365/containerpilot/events"
+	"github.com/asokolov365/containerpilot/surveillee"
 )
 
 // Watch represents an event to signal when something changes
 type Watch struct {
-	Name             string
-	serviceName      string
-	tag              string
-	dc               string
-	poll             int
-	discoveryService discovery.Backend
-	rx               chan events.Event
+	Name           string
+	serviceName    string
+	tag            string
+	dc             string
+	poll           int
+	surveilService surveillee.Backend
+	rx             chan events.Event
 
 	events.Publisher
 }
@@ -28,12 +28,12 @@ const eventBufferSize = 1000
 // NewWatch creates a Watch from a validated Config
 func NewWatch(cfg *Config) *Watch {
 	watch := &Watch{
-		Name:             cfg.Name,
-		serviceName:      cfg.serviceName,
-		tag:              cfg.Tag,
-		dc:               cfg.DC,
-		poll:             cfg.Poll,
-		discoveryService: cfg.discoveryService,
+		Name:           cfg.Name,
+		serviceName:    cfg.serviceName,
+		tag:            cfg.Tag,
+		dc:             cfg.DC,
+		poll:           cfg.Poll,
+		surveilService: cfg.surveilService,
 	}
 	// watch.InitRx()
 	watch.rx = make(chan events.Event, eventBufferSize)
@@ -53,7 +53,7 @@ func FromConfigs(cfgs []*Config) []*Watch {
 // CheckForUpstreamChanges checks the service discovery endpoint for any changes
 // in a dependent backend. Returns true when there has been a change.
 func (watch *Watch) CheckForUpstreamChanges() (bool, bool) {
-	return watch.discoveryService.CheckForUpstreamChanges(watch.serviceName, watch.tag, watch.dc)
+	return watch.surveilService.CheckForUpstreamChanges(watch.serviceName, watch.tag, watch.dc)
 }
 
 // Tick returns the watcher's ticker time duration.

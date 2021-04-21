@@ -8,14 +8,14 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-type parsedConfig struct {
+type ConsulConfig struct {
 	Address string          `mapstructure:"address"`
 	Scheme  string          `mapstructure:"scheme"`
 	Token   string          `mapstructure:"token"`
-	TLS     parsedTLSConfig `mapstructure:"tls"` // optional TLS settings
+	TLS     ConsulTLSConfig `mapstructure:"tls"` // optional TLS settings
 }
 
-type parsedTLSConfig struct {
+type ConsulTLSConfig struct {
 	HTTPCAFile        string `mapstructure:"cafile"`
 	HTTPCAPath        string `mapstructure:"capath"`
 	HTTPClientCert    string `mapstructure:"clientcert"`
@@ -24,44 +24,44 @@ type parsedTLSConfig struct {
 	HTTPSSLVerify     bool   `mapstructure:"verify"`
 }
 
-// override an already-parsed parsedConfig with any options that might
+// override an already-parsed ConsulConfig with any options that might
 // be set in the environment and then return the TLSConfig
-func getTLSConfig(parsed *parsedConfig) api.TLSConfig {
+func getConsulTLSConfig(cfg *ConsulConfig) api.TLSConfig {
 	if cafile := os.Getenv("CONSUL_CACERT"); cafile != "" {
-		parsed.TLS.HTTPCAFile = cafile
+		cfg.TLS.HTTPCAFile = cafile
 	}
 	if capath := os.Getenv("CONSUL_CAPATH"); capath != "" {
-		parsed.TLS.HTTPCAPath = capath
+		cfg.TLS.HTTPCAPath = capath
 	}
 	if clientCert := os.Getenv("CONSUL_CLIENT_CERT"); clientCert != "" {
-		parsed.TLS.HTTPClientCert = clientCert
+		cfg.TLS.HTTPClientCert = clientCert
 	}
 	if clientKey := os.Getenv("CONSUL_CLIENT_KEY"); clientKey != "" {
-		parsed.TLS.HTTPClientKey = clientKey
+		cfg.TLS.HTTPClientKey = clientKey
 	}
 	if serverName := os.Getenv("CONSUL_TLS_SERVER_NAME"); serverName != "" {
-		parsed.TLS.HTTPTLSServerName = serverName
+		cfg.TLS.HTTPTLSServerName = serverName
 	}
 	verify := os.Getenv("CONSUL_HTTP_SSL_VERIFY")
 	switch strings.ToLower(verify) {
 	case "1", "true":
-		parsed.TLS.HTTPSSLVerify = true
+		cfg.TLS.HTTPSSLVerify = true
 	case "0", "false":
-		parsed.TLS.HTTPSSLVerify = false
+		cfg.TLS.HTTPSSLVerify = false
 	}
 	tlsConfig := api.TLSConfig{
-		Address:            parsed.TLS.HTTPTLSServerName,
-		CAFile:             parsed.TLS.HTTPCAFile,
-		CAPath:             parsed.TLS.HTTPCAPath,
-		CertFile:           parsed.TLS.HTTPClientCert,
-		KeyFile:            parsed.TLS.HTTPClientKey,
-		InsecureSkipVerify: !parsed.TLS.HTTPSSLVerify,
+		Address:            cfg.TLS.HTTPTLSServerName,
+		CAFile:             cfg.TLS.HTTPCAFile,
+		CAPath:             cfg.TLS.HTTPCAPath,
+		CertFile:           cfg.TLS.HTTPClientCert,
+		KeyFile:            cfg.TLS.HTTPClientKey,
+		InsecureSkipVerify: !cfg.TLS.HTTPSSLVerify,
 	}
 	return tlsConfig
 }
 
-func configFromMap(raw map[string]interface{}) (*api.Config, error) {
-	parsed := &parsedConfig{}
+func consulConfigFromMap(raw map[string]interface{}) (*api.Config, error) {
+	parsed := &ConsulConfig{}
 	if err := decode.ToStruct(raw, parsed); err != nil {
 		return nil, err
 	}
@@ -69,25 +69,25 @@ func configFromMap(raw map[string]interface{}) (*api.Config, error) {
 		Address:   parsed.Address,
 		Scheme:    parsed.Scheme,
 		Token:     parsed.Token,
-		TLSConfig: getTLSConfig(parsed),
+		TLSConfig: getConsulTLSConfig(parsed),
 	}
 	return config, nil
 }
 
-func configFromURI(uri string) (*api.Config, error) {
-	address, scheme := parseRawURI(uri)
-	parsed := &parsedConfig{Address: address, Scheme: scheme}
+func consulConfigFromURI(uri string) (*api.Config, error) {
+	address, scheme := parseRawConsulURI(uri)
+	parsed := &ConsulConfig{Address: address, Scheme: scheme}
 	config := &api.Config{
 		Address:   parsed.Address,
 		Scheme:    parsed.Scheme,
 		Token:     parsed.Token,
-		TLSConfig: getTLSConfig(parsed),
+		TLSConfig: getConsulTLSConfig(parsed),
 	}
 	return config, nil
 }
 
 // Returns the uri broken into an address and scheme portion
-func parseRawURI(raw string) (string, string) {
+func parseRawConsulURI(raw string) (string, string) {
 
 	var scheme = "http" // default
 	var address = raw   // we accept bare address w/o a scheme

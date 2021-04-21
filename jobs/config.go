@@ -153,7 +153,7 @@ func (cfg *Config) validateDiscovery(disc discovery.Backend) error {
 
 	// we only need to validate the name if we're doing discovery;
 	// we'll just take the name of the exec otherwise
-	if err := services.ValidateName(cfg.Name); err != nil {
+	if err := services.ValidateName(cfg.Name, "consul"); err != nil {
 		return err
 	}
 	return cfg.addDiscoveryConfig(disc)

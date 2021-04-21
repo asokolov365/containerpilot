@@ -35,9 +35,9 @@ func NewConsul(config interface{}) (*Consul, error) {
 	var err error
 	switch t := config.(type) {
 	case string:
-		consulConfig, err = configFromURI(t)
+		consulConfig, err = consulConfigFromURI(t)
 	case map[string]interface{}:
-		consulConfig, err = configFromMap(t)
+		consulConfig, err = consulConfigFromMap(t)
 	default:
 		return nil, fmt.Errorf("no discovery backend defined")
 	}
@@ -84,7 +84,8 @@ func (c *Consul) ServiceDeregister(serviceID string) error {
 // CheckForUpstreamChanges requests the set of healthy instances of a
 // service from Consul and checks whether there has been a change since
 // the last check.
-func (c *Consul) CheckForUpstreamChanges(backendName, backendTag, dc string) (didChange, isHealthy bool) {
+func (c *Consul) CheckForUpstreamChanges(fields ...string) (hasChanged, isHealthy bool) {
+	backendName, backendTag, dc := fields[0], fields[1], fields[2]
 	opts := &api.QueryOptions{Datacenter: dc}
 	instances, meta, err := c.Health().Service(backendName, backendTag, true, opts)
 	if err != nil {
@@ -93,8 +94,8 @@ func (c *Consul) CheckForUpstreamChanges(backendName, backendTag, dc string) (di
 	}
 	collector.WithLabelValues(backendName).Set(float64(len(instances)))
 	isHealthy = len(instances) > 0
-	didChange = c.compareAndSwap(backendName, instances)
-	return didChange, isHealthy
+	hasChanged = c.compareAndSwap(backendName, instances)
+	return hasChanged, isHealthy
 }
 
 // returns true if any addresses for the service changed and updates

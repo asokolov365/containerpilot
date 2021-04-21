@@ -12,9 +12,9 @@ import (
 
 	"github.com/asokolov365/containerpilot/config"
 	"github.com/asokolov365/containerpilot/control"
-	"github.com/asokolov365/containerpilot/discovery"
 	"github.com/asokolov365/containerpilot/events"
 	"github.com/asokolov365/containerpilot/jobs"
+	"github.com/asokolov365/containerpilot/surveillee"
 	"github.com/asokolov365/containerpilot/telemetry"
 	"github.com/asokolov365/containerpilot/watches"
 
@@ -24,14 +24,14 @@ import (
 // App encapsulates the state of ContainerPilot after the initial setup.
 type App struct {
 	ControlServer *control.HTTPServer
-	Discovery     discovery.Backend
-	Jobs          []*jobs.Job
-	Watches       []*watches.Watch
-	Telemetry     *telemetry.Telemetry
-	StopTimeout   int
-	signalLock    *sync.RWMutex
-	ConfigFlag    string
-	Bus           *events.EventBus
+	SurveilServices *surveillee.Services
+	Jobs            []*jobs.Job
+	Watches         []*watches.Watch
+	Telemetry       *telemetry.Telemetry
+	StopTimeout     int
+	signalLock      *sync.RWMutex
+	ConfigFlag      string
+	Bus             *events.EventBus
 }
 
 // EmptyApp creates an empty application
@@ -68,7 +68,9 @@ func NewApp(configFlag string) (*App, error) {
 	a.ControlServer = cs
 
 	a.StopTimeout = cfg.StopTimeout
-	a.Discovery = cfg.Discovery
+	// a.Discovery = cfg.Discovery
+	// a.FileWatcher = cfg.FileWatcher
+	a.SurveilServices = cfg.Surveillees
 	a.Jobs = jobs.FromConfigs(cfg.Jobs)
 	a.Watches = watches.FromConfigs(cfg.Watches)
 	a.Telemetry = telemetry.NewTelemetry(cfg.Telemetry)
@@ -186,7 +188,9 @@ func (a *App) reload() error {
 		log.Errorf("error initializing config: %v", err)
 		return err
 	}
-	a.Discovery = newApp.Discovery
+	// a.Discovery = newApp.Discovery
+	// a.FileWatcher = newApp.FileWatcher
+	a.SurveilServices = newApp.SurveilServices
 	a.Jobs = newApp.Jobs
 	a.Watches = newApp.Watches
 	a.StopTimeout = newApp.StopTimeout

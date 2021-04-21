@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/asokolov365/containerpilot/jobs"
+	"github.com/asokolov365/containerpilot/surveillee"
 	"github.com/asokolov365/containerpilot/tests"
 	"github.com/asokolov365/containerpilot/tests/mocks"
 	"github.com/asokolov365/containerpilot/watches"
@@ -72,11 +73,12 @@ func TestStatusServerGet(t *testing.T) {
 	}
 	jobs := jobs.FromConfigs(jobCfgs)
 
+	survSvcs := surveillee.NewServices(noop, surveillee.NewFileWatcher())
 	watchCfgs, err := watches.NewConfigs(
 		tests.DecodeRawToSlice(
 			`[{name: "watch1", interval: 1},
 			 {name: "watch2", interval: 2}]`),
-		noop)
+		survSvcs)
 	if err != nil {
 		t.Fatal(err)
 	}

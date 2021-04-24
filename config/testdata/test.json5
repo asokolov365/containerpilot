@@ -1,5 +1,6 @@
 {
   consul: "consul:8500",
+  vault: "vault:8200",
   stopTimeout: 5,
   jobs: [
     {
@@ -89,7 +90,19 @@
     },
     {
       name: "upstreamB",
+      source: "consul",
       interval: 79
+    },
+    {
+      name: "/tmp/A.txt",
+      source: "file",
+      interval: 60,
+    },
+    {
+      name: "secret/data/foo",
+      tag: "bar",
+      source: "vault",
+      interval: 3600
     }
   ],
   telemetry: {

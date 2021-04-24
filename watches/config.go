@@ -2,6 +2,7 @@ package watches
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/asokolov365/containerpilot/config/decode"
 	"github.com/asokolov365/containerpilot/config/services"
@@ -48,6 +49,11 @@ func (cfg *Config) Validate(survSvcs *surveillee.Services) error {
 	switch cfg.Source {
 	case "consul":
 		cfg.surveilService = survSvcs.Discovery
+	case "vault":
+		if survSvcs.SecretStorage == nil || reflect.ValueOf(survSvcs.SecretStorage).IsNil() {
+			return fmt.Errorf("watch[%s].source is vault but vault config is not defined", cfg.serviceName)
+		}
+		cfg.surveilService = survSvcs.SecretStorage
 	case "file":
 		cfg.surveilService = survSvcs.FileWatcher
 	default:

@@ -20,6 +20,8 @@ func TestValidConfigJobs(t *testing.T) {
 
 	assert := assert.New(t)
 	os.Setenv("TEST", "HELLO")
+	os.Setenv("VAULT_TOKEN", "myTestToken")
+	defer os.Unsetenv("VAULT_TOKEN")
 	cfg, err := LoadConfig("./testdata/test.json5")
 	if err != nil {
 		t.Fatalf("unexpected error in LoadConfig: %v", err)
@@ -92,6 +94,8 @@ func TestValidConfigJobs(t *testing.T) {
 // telemetry.Config
 func TestValidConfigTelemetry(t *testing.T) {
 	os.Setenv("TEST", "HELLO")
+	os.Setenv("VAULT_TOKEN", "myTestToken")
+	defer os.Unsetenv("VAULT_TOKEN")
 	cfg, err := LoadConfig("./testdata/test.json5")
 	if err != nil {
 		t.Fatalf("unexpected error in LoadConfig: %v", err)
@@ -107,26 +111,45 @@ func TestValidConfigTelemetry(t *testing.T) {
 // watches.Config
 func TestValidConfigWatches(t *testing.T) {
 	os.Setenv("TEST", "HELLO")
+	os.Setenv("VAULT_TOKEN", "myTestToken")
+	defer os.Unsetenv("VAULT_TOKEN")
 	cfg, err := LoadConfig("./testdata/test.json5")
 	if err != nil {
 		t.Fatalf("unexpected error in LoadConfig: %v", err)
 	}
 
-	if len(cfg.Watches) != 2 {
-		t.Fatalf("expected 2 watches but got %v", cfg.Watches)
+	if len(cfg.Watches) != 4 {
+		t.Fatalf("expected 4 watches but got %v", cfg.Watches)
 	}
 	watch0 := cfg.Watches[0]
 	watch1 := cfg.Watches[1]
+	watch2 := cfg.Watches[2]
+	watch3 := cfg.Watches[3]
 	assert.Equal(t, watch0.Name, "watch.upstreamA", "config for Name")
+	assert.Equal(t, watch0.Source, "", "config for Source")
 	assert.Equal(t, watch0.Poll, 11, "config for Poll")
 	assert.Equal(t, watch0.Tag, "dev", "config for Tag")
+
 	assert.Equal(t, watch1.Name, "watch.upstreamB", "config for Name")
+	assert.Equal(t, watch1.Source, "consul", "config for Source")
 	assert.Equal(t, watch1.Poll, 79, "config for Poll")
 	assert.Equal(t, watch1.Tag, "", "config for Tag")
+
+	assert.Equal(t, watch2.Name, "watch./tmp/A.txt", "config for Name")
+	assert.Equal(t, watch2.Source, "file", "config for Source")
+	assert.Equal(t, watch2.Poll, 60, "config for Poll")
+	assert.Equal(t, watch2.Tag, "", "config for Tag")
+
+	assert.Equal(t, watch3.Name, "watch.secret/data/foo", "config for Name")
+	assert.Equal(t, watch3.Source, "vault", "config for Source")
+	assert.Equal(t, watch3.Poll, 3600, "config for Poll")
+	assert.Equal(t, watch3.Tag, "bar", "config for Tag")
 }
 
 // control.Config
 func TestValidConfigControl(t *testing.T) {
+	os.Setenv("VAULT_TOKEN", "myTestToken")
+	defer os.Unsetenv("VAULT_TOKEN")
 	cfg, err := LoadConfig("./testdata/test.json5")
 	if err != nil {
 		t.Fatalf("unexpected error in LoadConfig: %v", err)
@@ -207,6 +230,52 @@ func TestRenderedConfigIsParseable(t *testing.T) {
 	if name != "watch.upstreamA-ok" {
 		t.Fatalf("expected Watches[0] name to be upstreamA-ok but got %s", name)
 	}
+}
+
+func TestConfigWithVault(t *testing.T) {
+	var testJSON = `{
+	"consul": "consul:8500",
+	"vault": "vault:8200",
+	watches: [
+			{
+				"name": "secret/data/foo",
+				"source": "vault",
+				"interval": 3600
+			}
+		]
+	}`
+	os.Unsetenv("VAULT_TOKEN")
+	template, _ := renderConfigTemplate([]byte(testJSON))
+	_, err := newConfig(template)
+	assert.Error(t, err, "no vault token defined")
+
+	os.Setenv("VAULT_TOKEN", "myTestToken")
+	defer os.Unsetenv("VAULT_TOKEN")
+	config, err := newConfig(template)
+	if err != nil {
+		t.Fatalf("unexpected error in LoadConfig: %v", err)
+	}
+	name := config.Watches[0].Name
+	if name != "watch.secret/data/foo" {
+		t.Fatalf("expected Watches[0] name to be secret/data/foo but got %s", name)
+	}
+}
+
+func TestConfigWithOutVault(t *testing.T) {
+	var testJSON = `{
+	"consul": "consul:8500",
+	watches: [
+			{
+				"name": "secret/data/foo",
+				"source": "vault",
+				"interval": 3600
+			}
+		]
+	}`
+	template, _ := renderConfigTemplate([]byte(testJSON))
+	_, err := newConfig(template)
+	assert.Error(t, err,
+		"unable to parse watches: watch[secret/data/foo].source is vault but vault config is not defined")
 }
 
 // ----------------------------------------------------

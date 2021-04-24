@@ -12,54 +12,54 @@ import (
 	"github.com/asokolov365/containerpilot/tests/mocks"
 )
 
-func TestWatchPollOk(t *testing.T) {
+func TestWatchConsulPollOk(t *testing.T) {
 	cfg := &Config{
-		Name: "myWatchOk",
+		Name: "myWatchConsulOk",
 		Poll: 1,
 	}
 	// this discovery backend will always return true when we check
 	// it for changed
-	survSvcs := surveillee.NewServices(&mocks.NoopDiscoveryBackend{Val: true}, &mocks.NoopFileWatcherBackend{Val: true})
+	survSvcs := surveillee.NewServices(&mocks.NoopDiscoveryBackend{Val: true}, nil, nil)
 	err := cfg.Validate(survSvcs)
 	if err != nil {
-		t.Fatalf("unable to validate config for %s: %s", "myWatchOk", err)
+		t.Fatalf("unable to validate config for %s: %s", cfg.Name, err)
 	}
 	if cfg.surveilService == nil {
 		t.Fatalf("expected surveillee.Discovery but got nil")
 	}
 	got := runWatchTest(cfg, 5)
-	changed := events.Event{Code: events.StatusChanged, Source: "watch.myWatchOk"}
-	healthy := events.Event{Code: events.StatusHealthy, Source: "watch.myWatchOk"}
+	changed := events.Event{Code: events.StatusChanged, Source: "watch.myWatchConsulOk"}
+	healthy := events.Event{Code: events.StatusHealthy, Source: "watch.myWatchConsulOk"}
 	if got[changed] != 1 || got[healthy] != 1 {
 		t.Fatalf("expected 2 successful StatusHealthy events but got %v", got)
 	}
 }
 
-func TestWatchPollFail(t *testing.T) {
+func TestWatchConsulPollFail(t *testing.T) {
 	cfg := &Config{
-		Name: "myWatchFail",
+		Name: "myWatchConsulFail",
 		Poll: 1,
 	}
 	// this discovery backend will always return false when we check
 	// it for changed
-	survSvcs := surveillee.NewServices(&mocks.NoopDiscoveryBackend{Val: false}, &mocks.NoopFileWatcherBackend{Val: false})
+	survSvcs := surveillee.NewServices(&mocks.NoopDiscoveryBackend{Val: false}, nil, nil)
 	err := cfg.Validate(survSvcs)
 	if err != nil {
-		t.Fatalf("unable to validate config for %s: %s", "myWatchFail", err)
+		t.Fatalf("unable to validate config for %s: %s", cfg.Name, err)
 	}
 	if cfg.surveilService == nil {
 		t.Fatalf("expected surveillee.Discovery but got nil")
 	}
 	got := runWatchTest(cfg, 3)
-	changed := events.Event{Code: events.StatusChanged, Source: "watch.myWatchFail"}
-	unhealthy := events.Event{Code: events.StatusUnhealthy, Source: "watch.myWatchFail"}
+	changed := events.Event{Code: events.StatusChanged, Source: "watch.myWatchConsulFail"}
+	unhealthy := events.Event{Code: events.StatusUnhealthy, Source: "watch.myWatchConsulFail"}
 	if got[changed] != 0 || got[unhealthy] != 0 {
 		t.Fatalf("expected 2 failed poll events without changes, but got %v", got)
 	}
 }
 
-func TestWatchPollFileOk(t *testing.T) {
-	testFile, err := ioutil.TempFile("/tmp", "WatchPollFileOk-")
+func TestWatchFilePollOk(t *testing.T) {
+	testFile, err := ioutil.TempFile("/tmp", "WatchFilePollOk-")
 	if err != nil {
 		t.Fatalf("unable to create temp file: %s", err)
 	}
@@ -71,7 +71,7 @@ func TestWatchPollFileOk(t *testing.T) {
 	testFile.Close()
 	defer os.Remove(testFile.Name())
 
-	survSvcs := surveillee.NewServices(nil, &mocks.NoopFileWatcherBackend{Val: true})
+	survSvcs := surveillee.NewServices(nil, &mocks.NoopFileWatcherBackend{Val: true}, nil)
 	cfg := &Config{
 		Name:   testFile.Name(),
 		Source: "file",
@@ -92,7 +92,7 @@ func TestWatchPollFileOk(t *testing.T) {
 	}
 }
 
-func TestWatchPollFileFail(t *testing.T) {
+func TestWatchFilePollFail(t *testing.T) {
 	testFile, err := ioutil.TempFile("/tmp", "WatchPollFileOk-")
 	if err != nil {
 		t.Fatalf("unable to create temp file: %s", err)
@@ -105,7 +105,7 @@ func TestWatchPollFileFail(t *testing.T) {
 	testFile.Close()
 	defer os.Remove(testFile.Name())
 
-	survSvcs := surveillee.NewServices(nil, &mocks.NoopFileWatcherBackend{Val: false})
+	survSvcs := surveillee.NewServices(nil, &mocks.NoopFileWatcherBackend{Val: false}, nil)
 	cfg := &Config{
 		Name:   testFile.Name(),
 		Source: "file",
@@ -121,6 +121,52 @@ func TestWatchPollFileFail(t *testing.T) {
 	got := runWatchTest(cfg, 3)
 	changed := events.Event{Code: events.StatusChanged, Source: "watch." + testFile.Name()}
 	unhealthy := events.Event{Code: events.StatusUnhealthy, Source: "watch." + testFile.Name()}
+	if got[changed] != 0 || got[unhealthy] != 0 {
+		t.Fatalf("expected 2 failed poll events without changes, but got %v", got)
+	}
+}
+
+func TestWatchVaultPollOk(t *testing.T) {
+	cfg := &Config{
+		Name:   "secret/data/test",
+		Source: "vault",
+		Poll:   1,
+	}
+	survSvcs := surveillee.NewServices(nil, nil, &mocks.NoopSecretStorageBackend{Val: true})
+	err := cfg.Validate(survSvcs)
+	if err != nil {
+		t.Fatalf("unable to validate config for %s: %s", cfg.Name, err)
+	}
+	if cfg.surveilService == nil {
+		t.Fatalf("expected surveillee.SecretStorage but got <nil>")
+	}
+	got := runWatchTest(cfg, 5)
+	changed := events.Event{Code: events.StatusChanged, Source: "watch.secret/data/test"}
+	healthy := events.Event{Code: events.StatusHealthy, Source: "watch.secret/data/test"}
+	if got[changed] != 1 || got[healthy] != 1 {
+		t.Fatalf("expected 2 successful StatusHealthy events but got %v", got)
+	}
+}
+
+func TestWatchVaultPollFail(t *testing.T) {
+	cfg := &Config{
+		Name:   "secret/data/test",
+		Source: "vault",
+		Poll:   1,
+	}
+	// this discovery backend will always return false when we check
+	// it for changed
+	survSvcs := surveillee.NewServices(nil, nil, &mocks.NoopSecretStorageBackend{Val: false})
+	err := cfg.Validate(survSvcs)
+	if err != nil {
+		t.Fatalf("unable to validate config for %s: %s", cfg.Name, err)
+	}
+	if cfg.surveilService == nil {
+		t.Fatalf("expected surveillee.SecretStorage but got <nil>")
+	}
+	got := runWatchTest(cfg, 3)
+	changed := events.Event{Code: events.StatusChanged, Source: "watch.secret/data/test"}
+	unhealthy := events.Event{Code: events.StatusUnhealthy, Source: "watch.secret/data/test"}
 	if got[changed] != 0 || got[unhealthy] != 0 {
 		t.Fatalf("expected 2 failed poll events without changes, but got %v", got)
 	}

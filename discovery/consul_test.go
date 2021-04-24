@@ -45,7 +45,7 @@ func runParseTest(t *testing.T, uri, expectedAddress, expectedScheme string) {
 }
 
 func TestCheckForChanges(t *testing.T) {
-	c, _ := NewConsul(`consul: "localhost:8500"`)
+	c, _ := NewConsul("localhost:8500")
 
 	t0 := []*consul.ServiceEntry{}
 	didChange := c.compareAndSwap("test", t0)

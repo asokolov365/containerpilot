@@ -58,11 +58,11 @@ build/containerpilot_build:
 release: build
 	mkdir -p release
 	git tag $(VERSION)
-	git push asokolov365 --tags
+	git push --tags
 	cd build && tar -cfz ../release/containerpilot-$(VERSION).tar.gz containerpilot
 	@echo
-	@cd release && sha1sum containerpilot-$(VERSION).tar.gz
-	@cd release && sha1sum containerpilot-$(VERSION).tar.gz > containerpilot-$(VERSION).sha1.txt
+	@cd release && shasum containerpilot-$(VERSION).tar.gz
+	@cd release && shasum containerpilot-$(VERSION).tar.gz > containerpilot-$(VERSION).sha1.txt
 	@echo Upload files in release/ directory to GitHub release.
 
 ## remove build/test artifacts, test fixtures, and vendor directories

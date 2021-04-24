@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/flynn/json5"
@@ -24,6 +24,7 @@ import (
 
 type rawConfig struct {
 	consul      interface{}
+	vault       interface{}
 	logConfig   *logger.Config
 	stopTimeout int
 	jobs        []interface{}
@@ -80,7 +81,7 @@ func RenderConfig(configFlag, renderFlag string) error {
 		fmt.Printf("%s", renderedConfig)
 	} else {
 		var err error
-		if err = ioutil.WriteFile(renderFlag, renderedConfig, 0644); err != nil {
+		if err = os.WriteFile(renderFlag, renderedConfig, 0644); err != nil {
 			return fmt.Errorf("could not write config file: %s", err)
 		}
 	}
@@ -109,7 +110,7 @@ func loadConfigFile(configFlag string) ([]byte, error) {
 	if configFlag == "" {
 		return nil, errors.New("-config flag is required")
 	}
-	data, err := ioutil.ReadFile(configFlag)
+	data, err := os.ReadFile(configFlag)
 	if err != nil {
 		return nil, fmt.Errorf("could not read config file: %s", err)
 	}
@@ -144,7 +145,15 @@ func newConfig(configData []byte) (*Config, error) {
 		return nil, err
 	}
 	fileWatcher := surveillee.NewFileWatcher()
-	survSvcs := surveillee.NewServices(disc, fileWatcher)
+
+	var secretStorage *surveillee.Vault
+	if raw.vault != nil {
+		secretStorage, err = surveillee.NewVault(raw.vault)
+		if err != nil {
+			return nil, err
+		}
+	}
+	survSvcs := surveillee.NewServices(disc, fileWatcher, secretStorage)
 	cfg.Surveillees = survSvcs
 
 	cfg.LogConfig = raw.logConfig
@@ -248,6 +257,7 @@ func validateConfigByDecode(configMap map[string]interface{}, result *rawConfig)
 		return err
 	}
 	result.consul = configMap["consul"]
+	result.vault = configMap["vault"]
 	result.stopTimeout = stopTimeout
 	result.logConfig = &logConfig
 	result.control = configMap["control"]
@@ -256,6 +266,7 @@ func validateConfigByDecode(configMap map[string]interface{}, result *rawConfig)
 	result.telemetry = configMap["telemetry"]
 
 	delete(configMap, "consul")
+	delete(configMap, "vault")
 	delete(configMap, "logging")
 	delete(configMap, "control")
 	delete(configMap, "stopTimeout")

@@ -73,7 +73,7 @@ func TestStatusServerGet(t *testing.T) {
 	}
 	jobs := jobs.FromConfigs(jobCfgs)
 
-	survSvcs := surveillee.NewServices(noop, surveillee.NewFileWatcher())
+	survSvcs := surveillee.NewServices(noop, surveillee.NewFileWatcher(), nil)
 	watchCfgs, err := watches.NewConfigs(
 		tests.DecodeRawToSlice(
 			`[{name: "watch1", interval: 1},

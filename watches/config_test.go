@@ -14,7 +14,7 @@ import (
 func TestWatchesParse(t *testing.T) {
 	data, _ := ioutil.ReadFile(fmt.Sprintf("./testdata/%s.json5", t.Name()))
 	testCfg := tests.DecodeRawToSlice(string(data))
-	survSvcs := surveillee.NewServices(nil, nil)
+	survSvcs := surveillee.NewServices(nil, nil, nil)
 	watches, err := NewConfigs(testCfg, survSvcs)
 	if err != nil {
 		t.Fatal(err)

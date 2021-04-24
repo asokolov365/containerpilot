@@ -10,10 +10,15 @@ type Backend interface {
 // Services is a structure which contains all known entities that
 // can be monitored for changes.
 type Services struct {
-	Discovery   Backend
-	FileWatcher Backend
+	Discovery     Backend
+	FileWatcher   Backend
+	SecretStorage Backend
 }
 
-func NewServices(discovery Backend, fileWatcher Backend) *Services {
-	return &Services{Discovery: discovery, FileWatcher: fileWatcher}
+func NewServices(discovery Backend, fileWatcher Backend, secretStorage Backend) *Services {
+	return &Services{
+		Discovery:     discovery,
+		FileWatcher:   fileWatcher,
+		SecretStorage: secretStorage,
+	}
 }

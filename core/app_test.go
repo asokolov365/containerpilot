@@ -60,6 +60,13 @@ func TestWatchConfigRequiredFields(t *testing.T) {
 	defer os.Remove(f2.Name())
 	_, err = NewApp(f2.Name())
 	assert.Error(t, err, "unable to parse watches: watch[name].interval must be > 0")
+
+	// Missing `vault`
+	testCfg = `{"consul": "consul:8500", watches: [{"name": "secret/data/foo", "source": "vault", "interval": 30}]}`
+	f3 := testCfgToTempFile(t, testCfg)
+	defer os.Remove(f3.Name())
+	_, err = NewApp(f3.Name())
+	assert.Error(t, err, "watch[secret/data/foo].source is vault but vault config is not defined")
 }
 
 func TestMetricServiceCreation(t *testing.T) {

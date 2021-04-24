@@ -24,7 +24,7 @@ func init() {
 // Consul wraps the service discovery backend for the Hashicorp Consul client
 // and tracks the state of all watched dependencies.
 type Consul struct {
-	api.Client
+	*api.Client
 	lock            sync.RWMutex
 	watchedServices map[string][]*api.ServiceEntry
 }
@@ -53,7 +53,7 @@ func NewConsul(config interface{}) (*Consul, error) {
 		return nil, err
 	}
 	watchedServices := make(map[string][]*api.ServiceEntry)
-	consul := &Consul{*client, sync.RWMutex{}, watchedServices}
+	consul := &Consul{client, sync.RWMutex{}, watchedServices}
 	return consul, nil
 }
 
@@ -89,7 +89,7 @@ func (c *Consul) CheckForUpstreamChanges(fields ...string) (hasChanged, isHealth
 	opts := &api.QueryOptions{Datacenter: dc}
 	instances, meta, err := c.Health().Service(backendName, backendTag, true, opts)
 	if err != nil {
-		log.Warnf("failed to query %v: %s [%v]", backendName, err, meta)
+		log.Warnf("failed to query consul %v: %s [%v]", backendName, err, meta)
 		return false, false
 	}
 	collector.WithLabelValues(backendName).Set(float64(len(instances)))

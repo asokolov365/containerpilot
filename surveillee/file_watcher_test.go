@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCheckForChanges(t *testing.T) {
+func TestCheckForChecksumsChanges(t *testing.T) {
 	fileWatcher := NewFileWatcher()
 
 	t0 := "70fb669a01c366a0f0057f061e58346d" // md5 -s 'initial state'

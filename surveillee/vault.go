@@ -102,18 +102,17 @@ func (v *Vault) compareAndSwap(requestPath, field string, newSecret *api.Secret)
 			}
 		}
 		return false
-	} else {
-		// comare fields of two maps
-		oldValue, ok := oldData[field]
-		if !ok {
-			return false
-		}
-		newValue, ok := newData[field]
-		if !ok {
-			return false
-		}
-		return oldValue != newValue
 	}
+	// comare fields of two maps
+	oldValue, ok := oldData[field]
+	if !ok {
+		return false
+	}
+	newValue, ok := newData[field]
+	if !ok {
+		return false
+	}
+	return oldValue != newValue
 }
 
 func (v *Vault) refreshTokenFromFile() error {

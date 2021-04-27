@@ -20,13 +20,14 @@ import (
 // 	prometheus.MustRegister(collector)
 // }
 
-// WatchedFiles wraps the surveillee backend for checking changes
+// FileWatcher wraps the surveillee backend for checking changes
 // in watched files and tracks their the md5 checksums.
 type FileWatcher struct {
 	lock      sync.RWMutex
 	checksums map[string]string
 }
 
+// NewFileWatcher returns a new FileWatcher.
 func NewFileWatcher() *FileWatcher {
 	return &FileWatcher{sync.RWMutex{}, make(map[string]string)}
 }
@@ -45,7 +46,7 @@ func (w *FileWatcher) md5sum(path string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-// CheckForChanges requests md5sum of a file and checks
+// CheckForUpstreamChanges computes md5sum of a file and checks
 // whether there has been a change since the last check.
 func (w *FileWatcher) CheckForUpstreamChanges(fields ...string) (hasChanged, isHealthy bool) {
 	filepath := fields[0]

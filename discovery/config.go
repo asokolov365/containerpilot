@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
+// ConsulConfig is used to configure the creation of
+// the Consul Discovery service client.
 type ConsulConfig struct {
 	Address string          `mapstructure:"address"`
 	Scheme  string          `mapstructure:"scheme"`
@@ -15,6 +17,7 @@ type ConsulConfig struct {
 	TLS     ConsulTLSConfig `mapstructure:"tls"` // optional TLS settings
 }
 
+// ConsulTLSConfig is optional TLS settings for ConsulConfig.
 type ConsulTLSConfig struct {
 	HTTPCAFile        string `mapstructure:"cafile"`
 	HTTPCAPath        string `mapstructure:"capath"`

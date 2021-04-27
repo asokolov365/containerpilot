@@ -15,6 +15,7 @@ type Services struct {
 	SecretStorage Backend
 }
 
+// NewServices returns a new Services structure.
 func NewServices(discovery Backend, fileWatcher Backend, secretStorage Backend) *Services {
 	return &Services{
 		Discovery:     discovery,

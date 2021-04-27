@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/vault/api"
 )
 
+// VaultConfig is used to configure the creation of the Hashicorp Vault client.
 type VaultConfig struct {
 	Address string         `mapstructure:"address"`
 	Scheme  string         `mapstructure:"scheme"`
@@ -16,6 +17,7 @@ type VaultConfig struct {
 	TLS     VaultTLSConfig `mapstructure:"tls"` // optional TLS settings
 }
 
+// VaultTLSConfig is optional TLS settings for VaultConfig.
 type VaultTLSConfig struct {
 	HTTPCACert        string `mapstructure:"cafile"`
 	HTTPCAPath        string `mapstructure:"capath"`
@@ -43,8 +45,8 @@ func getVaultTLSConfig(cfg *VaultConfig) *api.TLSConfig {
 	if serverName := os.Getenv("VAULT_TLS_SERVER_NAME"); serverName != "" {
 		cfg.TLS.HTTPTLSServerName = serverName
 	}
-	skip_verify := os.Getenv("VAULT_SKIP_VERIFY")
-	switch strings.ToLower(skip_verify) {
+	skipVerify := os.Getenv("VAULT_SKIP_VERIFY")
+	switch strings.ToLower(skipVerify) {
 	case "1", "true":
 		cfg.TLS.HTTPSSLVerify = false
 	case "0", "false":
@@ -73,10 +75,10 @@ func vaultConfigFromMap(raw map[string]interface{}) (*api.Config, string, error)
 	if parsed.Token == "" {
 		return nil, "", fmt.Errorf("no vault token defined")
 	}
-	tls_config := getVaultTLSConfig(parsed)
+	tlsConfig := getVaultTLSConfig(parsed)
 	config := api.DefaultConfig()
 	config.Address = parsed.Scheme + "://" + parsed.Address
-	if err := config.ConfigureTLS(tls_config); err != nil {
+	if err := config.ConfigureTLS(tlsConfig); err != nil {
 		return nil, "", err
 	}
 	if err := config.ReadEnvironment(); err != nil {
@@ -94,10 +96,10 @@ func vaultConfigFromURI(uri string) (*api.Config, string, error) {
 	if parsed.Token == "" {
 		return nil, "", fmt.Errorf("no vault token defined")
 	}
-	tls_config := getVaultTLSConfig(parsed)
+	tlsConfig := getVaultTLSConfig(parsed)
 	config := api.DefaultConfig()
 	config.Address = parsed.Scheme + "://" + parsed.Address
-	if err := config.ConfigureTLS(tls_config); err != nil {
+	if err := config.ConfigureTLS(tlsConfig); err != nil {
 		return nil, "", err
 	}
 	if err := config.ReadEnvironment(); err != nil {

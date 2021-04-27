@@ -215,8 +215,8 @@ func TestMetricRecordSummary(t *testing.T) {
 		})}
 	prometheus.MustRegister(metric.collector)
 	// patt := `telemetry_metrics_TestMetricRecordSummary{quantile="([\.0-9]*)"} ([0-9\.]*)`
-	patt_sum := `telemetry_metrics_TestMetricRecordSummary_(sum) ([0-9\.]*)`
-	patt_count := `telemetry_metrics_TestMetricRecordSummary_(count) ([0-9\.]*)`
+	pattSum := `telemetry_metrics_TestMetricRecordSummary_(sum) ([0-9\.]*)`
+	pattCount := `telemetry_metrics_TestMetricRecordSummary_(count) ([0-9\.]*)`
 
 	t.Run("record ok", func(t *testing.T) {
 		// need a bunch of metrics to make quantiles make any sense
@@ -225,9 +225,9 @@ func TestMetricRecordSummary(t *testing.T) {
 		}
 		resp := getFromTestServer(t, testServer)
 		// expected := [][]string{{"0.5", "5"}, {"0.9", "9"}, {"0.99", "10"}}
-		assert.True(t, checkBuckets(resp, patt_sum, [][]string{{"sum", "55"}}),
+		assert.True(t, checkBuckets(resp, pattSum, [][]string{{"sum", "55"}}),
 			"failed to get match for metric sum in response")
-		assert.True(t, checkBuckets(resp, patt_count, [][]string{{"count", "10"}}),
+		assert.True(t, checkBuckets(resp, pattCount, [][]string{{"count", "10"}}),
 			"failed to get match for metric count in response")
 	})
 	t.Run("record update", func(t *testing.T) {
@@ -237,9 +237,9 @@ func TestMetricRecordSummary(t *testing.T) {
 		}
 		resp := getFromTestServer(t, testServer)
 		// expected := [][]string{{"0.5", "4"}, {"0.9", "9"}, {"0.99", "10"}}
-		assert.True(t, checkBuckets(resp, patt_sum, [][]string{{"sum", "70"}}),
+		assert.True(t, checkBuckets(resp, pattSum, [][]string{{"sum", "70"}}),
 			"failed to get match for metric sum in response")
-		assert.True(t, checkBuckets(resp, patt_count, [][]string{{"count", "15"}}),
+		assert.True(t, checkBuckets(resp, pattCount, [][]string{{"count", "15"}}),
 			"failed to get match for metric count in response")
 	})
 }

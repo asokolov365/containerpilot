@@ -1,3 +1,13 @@
+## 4.0.0 (April 20, 2021)
+
+FEATURES:
+
+- Introduced FileWatcher. Watches now can watch arbitrary files for changes
+- Upgraded to Go 1.16 for building ContainerPilot
+- glide replaced with go mod, fixed lint issues
+
+SHA1 7424a7425b242c0072df5985c48fdc3bcf4ac232
+
 ## 3.6.2 (Unreleased)
 
 ## 3.6.1 (December 7th, 2017)

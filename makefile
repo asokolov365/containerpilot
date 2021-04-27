@@ -69,7 +69,6 @@ release: build
 clean:
 	rm -rf build release cover vendor
 	docker rmi -f containerpilot_build > /dev/null 2>&1 || true
-	docker rm -f containerpilot_consul > /dev/null 2>&1 || true
 	./scripts/test.sh clean
 
 # ----------------------------------------------
@@ -94,8 +93,8 @@ dep-install:
 tools:
 	@go version | grep 1.16 || (echo 'WARNING: go1.16 should be installed!')
 	@$(if $(value GOPATH),, $(error 'GOPATH not set'))
-	go get golang.org/x/lint
-	go get golang.org/x/tools/cmd/stringer
+	go get -u golang.org/x/lint/golint
+	go get -u golang.org/x/tools/cmd/stringer
 	curl --fail -Lso consul.zip "https://releases.hashicorp.com/consul/$(CONSUL_VERSION)/consul_$(CONSUL_VERSION)_$(GOOS)_$(GOARCH).zip"
 	unzip consul.zip -d "$(GOPATH)/bin"
 	rm consul.zip
@@ -127,7 +126,7 @@ quiet: # this is silly but shuts up 'Nothing to be done for `local`'
 	@:
 
 ## run `go lint` and other code quality tools
-lint:
+lint: build/containerpilot_build
 	$(docker) bash ./scripts/lint.sh
 
 ## run unit tests
@@ -153,11 +152,6 @@ TEST ?= "all"
 integration: build
 	./scripts/test.sh test $(TEST)
 
-## stand up a Consul server in development mode in Docker
-consul:
-	docker rm -f containerpilot_consul > /dev/null 2>&1 || true
-	docker run -d -m 256m -p 8500:8500 --name containerpilot_consul \
-		consul:latest agent -dev -client 0.0.0.0 -bind=0.0.0.0
 
 ## build documentation for Kirby
 kirby: build/docs

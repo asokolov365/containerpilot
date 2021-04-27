@@ -48,8 +48,8 @@ func TestGetIp(t *testing.T) {
 	ip, _ := GetIP([]string{lo, "inet"})
 	assert.Equal(t, "127.0.0.1", ip, "expected to find loopback IP")
 
-	ip, err := GetIP([]string{"interface-does-not-exist"})
-	assert.Error(t, err, "expected interface not found, but instead got an IP")
+	_, err := GetIP([]string{"interface-does-not-exist"})
+	assert.EqualError(t, err, "Unable to parse interface spec: interface-does-not-exist")
 
 	ip, _ = GetIP([]string{"static:192.168.1.100", lo})
 	assert.Equal(t, "192.168.1.100", ip, "expected to find static IP")

@@ -3,6 +3,7 @@ package jobs
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -137,13 +138,17 @@ func (cfg *Config) setStopping(name string) {
 }
 
 func (cfg *Config) validateDiscovery(disc discovery.Backend) error {
+	// if port isn't set or discovery is not configured then
+	// we won't do any discovery for this job
+	if cfg.Name != "" {
+		if cfg.Port == 0 || disc == nil || reflect.ValueOf(disc).IsNil() {
+			return nil
+		}
+	}
+
 	// setting up discovery requires the TTL from the health check first
 	if err := cfg.validateHealthCheck(); err != nil {
 		return err
-	}
-	// if port isn't set then we won't do any discovery for this job
-	if (cfg.Port == 0 || disc == nil) && cfg.Name != "" {
-		return nil
 	}
 
 	// we only need to validate initialStatus if we're doing discovery.
@@ -296,7 +301,7 @@ func (cfg *Config) validateExec() error {
 
 func (cfg *Config) validateHealthCheck() error {
 	if cfg.Port != 0 && cfg.Health == nil && cfg.Name != "containerpilot" {
-		return fmt.Errorf("job[%s].health must be set if 'port' is set", cfg.Name)
+		return fmt.Errorf("job[%s].health must be set if 'port' is set and Discovery service is defined", cfg.Name)
 	}
 	if cfg.Health == nil {
 		return nil // non-advertised jobs don't need health checks

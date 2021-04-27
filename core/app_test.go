@@ -27,7 +27,7 @@ func TestJobConfigRequiredFields(t *testing.T) {
 	f1 := testCfgToTempFile(t, testCfg)
 	defer os.Remove(f1.Name())
 	_, err := NewApp(f1.Name())
-	assert.Error(t, err, "unable to parse jobs: 'name' must not be blank")
+	assert.EqualError(t, err, "unable to parse jobs: 'name' must not be blank")
 
 	// Missing `interval`
 	testCfg = `{"consul": "consul:8500", jobs: [
@@ -35,7 +35,7 @@ func TestJobConfigRequiredFields(t *testing.T) {
 	f2 := testCfgToTempFile(t, testCfg)
 	defer os.Remove(f2.Name())
 	_, err = NewApp(f2.Name())
-	assert.Error(t, err, "unable to parse jobs: job[name].health.interval must be > 0")
+	assert.EqualError(t, err, "unable to parse jobs: job[name].health.interval must be > 0")
 
 	// Missing `ttl`
 	testCfg = `{"consul": "consul:8500", jobs: [
@@ -43,7 +43,7 @@ func TestJobConfigRequiredFields(t *testing.T) {
 	f3 := testCfgToTempFile(t, testCfg)
 	defer os.Remove(f3.Name())
 	_, err = NewApp(f3.Name())
-	assert.Error(t, err, "unable to parse jobs: job[name].health.ttl must be > 0")
+	assert.EqualError(t, err, "unable to parse jobs: job[name].health.ttl must be > 0")
 }
 
 func TestWatchConfigRequiredFields(t *testing.T) {
@@ -52,21 +52,21 @@ func TestWatchConfigRequiredFields(t *testing.T) {
 	f1 := testCfgToTempFile(t, testCfg)
 	defer os.Remove(f1.Name())
 	_, err := NewApp(f1.Name())
-	assert.Error(t, err, "unable to parse watches: 'name' must not be blank")
+	assert.EqualError(t, err, "unable to parse watches: 'name' must not be blank")
 
 	// Missing `interval`
 	testCfg = `{"consul": "consul:8500", watches: [{"name": "name"}]}`
 	f2 := testCfgToTempFile(t, testCfg)
 	defer os.Remove(f2.Name())
 	_, err = NewApp(f2.Name())
-	assert.Error(t, err, "unable to parse watches: watch[name].interval must be > 0")
+	assert.EqualError(t, err, "unable to parse watches: watch[name].interval must be > 0")
 
 	// Missing `vault`
 	testCfg = `{"consul": "consul:8500", watches: [{"name": "secret/data/foo", "source": "vault", "interval": 30}]}`
 	f3 := testCfgToTempFile(t, testCfg)
 	defer os.Remove(f3.Name())
 	_, err = NewApp(f3.Name())
-	assert.Error(t, err, "watch[secret/data/foo].source is vault but vault config is not defined")
+	assert.EqualError(t, err, "unable to parse watches: watch[secret/data/foo].source is vault but vault config is not defined")
 }
 
 func TestMetricServiceCreation(t *testing.T) {

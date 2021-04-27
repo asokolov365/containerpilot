@@ -18,14 +18,14 @@ func TestInvalidConfigNoConfigFlag(t *testing.T) {
 	}
 }
 
-func TestInvalidConfigParseNoDiscovery(t *testing.T) {
+func TestConfigParseEmptyConfig(t *testing.T) {
 	defer argTestCleanup(argTestSetup())
 	f1 := testCfgToTempFile(t, "{}")
 	defer os.Remove(f1.Name())
 	os.Args = []string{"this", "-config", f1.Name()}
 	_, p := GetArgs()
 	_, err := NewApp(p.ConfigPath)
-	assert.Error(t, err, "no discovery backend defined")
+	assert.NoError(t, err)
 }
 
 func TestInvalidConfigMissingFile(t *testing.T) {
@@ -33,7 +33,7 @@ func TestInvalidConfigMissingFile(t *testing.T) {
 	os.Args = []string{"this", "-config", "/xxxx"}
 	_, p := GetArgs()
 	_, err := NewApp(p.ConfigPath)
-	assert.Error(t, err,
+	assert.EqualError(t, err,
 		"could not read config file: open /xxxx: no such file or directory")
 }
 
@@ -44,7 +44,7 @@ func TestInvalidConfigParseNotJson(t *testing.T) {
 	os.Args = []string{"this", "-config", f1.Name()}
 	_, p := GetArgs()
 	_, err := NewApp(p.ConfigPath)
-	assert.Error(t, fmt.Errorf("%s", err.Error()[:29]),
+	assert.EqualError(t, fmt.Errorf("%s", err.Error()[:29]),
 		"parse error at line:col [1:1]")
 }
 
@@ -56,7 +56,7 @@ func TestInvalidConfigParseTemplateError(t *testing.T) {
 	os.Args = []string{"this", "-config", f1.Name()}
 	_, p := GetArgs()
 	_, err := NewApp(p.ConfigPath)
-	assert.Error(t, fmt.Errorf("%s", err.Error()[:30]),
+	assert.EqualError(t, fmt.Errorf("%s", err.Error()[:30]),
 		"parse error at line:col [1:10]")
 }
 

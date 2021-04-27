@@ -40,9 +40,11 @@ if [ -z "$path" -o -z "$key" -o -z "$value" ]; then
     exit $E_OPTERR
 fi
 
-curl \
+curl --fail --silent \
+    --output /dev/null \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --header "Content-Type: application/json" \
     --request POST \
     --data "{\"data\":{\"${key}\":\"${value}\"}}" \
-    ${VAULT_ADDR}/v1/secret/data/test
+    ${VAULT_ADDR}/v1/${path} \
+&& echo "Secret at ${path}[${key}] changed succesfully"

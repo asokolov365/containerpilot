@@ -7,11 +7,11 @@ set -e
 docker-compose up -d consul vault
 vault=$(docker-compose ps -q vault)
 docker exec -it "$vault" assert ready
-VAULT_ADDR=http://localhost:8200 VAULT_TOKEN=myroot ./change-secret.sh -p secret/data/test -k foo -v `pwgen 12 1`
+VAULT_ADDR=http://localhost:8200 VAULT_TOKEN=myroot ./change-secret.sh -p secret/data/test -k foo -v dieKaiw9od8j
 
 docker-compose up -d app
 sleep 10
-VAULT_ADDR=http://localhost:8200 VAULT_TOKEN=myroot ./change-secret.sh -p secret/data/test -k foo -v `pwgen 12 1`
+VAULT_ADDR=http://localhost:8200 VAULT_TOKEN=myroot ./change-secret.sh -p secret/data/test -k foo -v waleo8ib3Zah
 app=$(docker-compose ps -q app)
 for i in $(seq 0 30); do
     sleep 1

@@ -140,11 +140,13 @@ func newConfig(configData []byte) (*Config, error) {
 	cfg := &Config{}
 
 	// Surveillees
-	disc, err := discovery.NewConsul(raw.consul)
-	if err != nil {
-		return nil, err
+	var disc *discovery.Consul
+	if raw.consul != nil {
+		disc, err = discovery.NewConsul(raw.consul)
+		if err != nil {
+			return nil, err
+		}
 	}
-	fileWatcher := surveillee.NewFileWatcher()
 
 	var secretStorage *surveillee.Vault
 	if raw.vault != nil {
@@ -153,9 +155,12 @@ func newConfig(configData []byte) (*Config, error) {
 			return nil, err
 		}
 	}
+	fileWatcher := surveillee.NewFileWatcher()
+
 	survSvcs := surveillee.NewServices(disc, fileWatcher, secretStorage)
 	cfg.Surveillees = survSvcs
 
+	// Log
 	cfg.LogConfig = raw.logConfig
 
 	stopTimeout, err := raw.parseStopTimeout()

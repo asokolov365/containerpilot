@@ -16,6 +16,8 @@ import (
 // ---------------------------------------------------------------------
 // Happy path tests
 
+var noop = &mocks.NoopDiscoveryBackend{}
+
 func TestJobConfigServiceWithPreStart(t *testing.T) {
 	jobs := loadTestConfig(t)
 	assert := assert.New(t)
@@ -240,19 +242,18 @@ func TestJobConfigSmokeTest(t *testing.T) {
 // Error condition tests
 
 func TestJobConfigValidateName(t *testing.T) {
-	assert := assert.New(t)
 
 	cfgA := `[{name: "", port: 80, health: {exec: "myhealth", interval: 1, ttl: 3}}]`
 	_, err := NewConfigs(tests.DecodeRawToSlice(cfgA), noop)
-	assert.Error(err, "'name' must not be blank")
+	assert.EqualError(t, err, "'name' must not be blank")
 
 	cfgB := `[{name: "", exec: "myexec", port: 80, health: {exec: "myhealth", interval: 1, ttl: 3}}]`
 	_, err = NewConfigs(tests.DecodeRawToSlice(cfgB), noop)
-	assert.Error(err, "'name' must not be blank")
+	assert.EqualError(t, err, "'name' must not be blank")
 
 	cfgC := `[{name: "", exec: "myexec"}]`
 	_, err = NewConfigs(tests.DecodeRawToSlice(cfgC), nil)
-	assert.Error(err, "'name' must not be blank")
+	assert.EqualError(t, err, "'name' must not be blank")
 
 	// invalid name is permitted if there's no 'port' config
 	cfgD := `[{name: "myjob_invalid_name", exec: "myexec"}]`
@@ -263,19 +264,18 @@ func TestJobConfigValidateName(t *testing.T) {
 }
 
 func TestJobConfigValidateDiscovery(t *testing.T) {
-	assert := assert.New(t)
 
 	cfgA := `[{name: "myName", port: 80, interfaces: ["inet", "lo0"]}]`
 	_, err := NewConfigs(tests.DecodeRawToSlice(cfgA), noop)
-	assert.Error(err, "job[myName].health must be set if 'port' is set")
+	assert.EqualError(t, err, "job[myName].health must be set if 'port' is set and Discovery service is defined")
 
 	cfgB := `[{name: "myName", port: 80, interfaces: ["inet", "lo0"], health: {interval: 1}}]`
 	_, err = NewConfigs(tests.DecodeRawToSlice(cfgB), noop)
-	assert.Error(err, "job[myName].health.ttl must be > 0")
+	assert.EqualError(t, err, "job[myName].health.ttl must be > 0")
 
 	cfgC := `[{name: "myName", port: 80, initialStatus: "invalid", interfaces: ["inet", "lo0"], health: {interval: 1, ttl: 1}}]`
 	_, err = NewConfigs(tests.DecodeRawToSlice(cfgC), noop)
-	assert.Error(err, "job[myName].intialStatus must be one of 'passing', 'warning' or 'critical'.")
+	assert.EqualError(t, err, "job configuration error: 1 error(s) decoding:\n\n* '[0]' has invalid keys: initialStatus")
 
 	// no health check shouldn't return an error
 	cfgD := `[{name: "myName", port: 80, interfaces: ["inet", "lo0"], health: {interval: 1, ttl: 1}}]`
@@ -304,7 +304,7 @@ func TestJobConfigValidateFrequency(t *testing.T) {
 	expectErr := func(test, errMsg string) {
 		testCfg := tests.DecodeRawToSlice(test)
 		_, err := NewConfigs(testCfg, nil)
-		assert.Error(t, err, errMsg)
+		assert.EqualError(t, err, errMsg)
 	}
 	expectErr(
 		`[{name: "A", exec: "/bin/taskA", timeout: "1s", when: {interval: "-1s"}}]`,
@@ -324,7 +324,7 @@ func TestJobConfigValidateFrequency(t *testing.T) {
 
 	expectErr(
 		`[{name: "E", exec: "/bin/taskE", timeout: "1ns", when: {interval: "xx"}}]`,
-		"unable to parse job[E].when.interval 'xx': time: invalid duration xx")
+		"unable to parse job[E].when.interval 'xx': time: invalid duration \"xx\"")
 
 	testCfg := tests.DecodeRawToSlice(
 		`[{name: "F", exec: "/bin/taskF", when: {interval: "1ms"}}]`)
@@ -446,27 +446,25 @@ func TestHealthChecksConfigError(t *testing.T) {
 
 	expectErr := func(test, errMsg string) {
 		testCfg := tests.DecodeRawToSlice(test)
-		_, err := NewConfigs(testCfg, nil)
-		assert.Error(t, err, errMsg)
+		_, err := NewConfigs(testCfg, noop)
+		assert.EqualError(t, err, errMsg)
 	}
 	expectErr(
-		`[{name: "myName", health: {exec: "/bin/true"}}]`,
+		`[{name: "myName", port: 65535, health: {exec: "/bin/true"}}]`,
 		"job[myName].health.interval must be > 0")
 	expectErr(
-		`[{name: "myName", health: {exec: "/bin/true", interval: 1}}]`,
+		`[{name: "myName", port: 65535, health: {exec: "/bin/true", interval: 1}}]`,
 		"job[myName].health.ttl must be > 0")
 	expectErr(
-		`[{name: "myName", health: {exec: "", interval: 1, ttl: 5}}]`,
+		`[{name: "myName", port: 65535, health: {exec: "", interval: 1, ttl: 5}}]`,
 		"unable to create job[myName].health.exec: received zero-length argument")
 	expectErr(
-		`[{name: "myName", health: {exec: "/bin/true", interval: 1, ttl: 5, timeout: "xx"}}]`,
-		"could not parse job[myName].health.timeout 'xx': time: invalid duration xx")
+		`[{name: "myName", port: 65535, health: {exec: "/bin/true", interval: 1, ttl: 5, timeout: "xx"}}]`,
+		"could not parse job[myName].health.timeout 'xx': time: invalid duration \"xx\"")
 }
 
 // ---------------------------------------------------------------------
 // helpers
-
-var noop = &mocks.NoopDiscoveryBackend{}
 
 func loadTestConfig(t *testing.T) []*Config {
 	data, _ := ioutil.ReadFile(fmt.Sprintf("./testdata/%s.json5", t.Name()))

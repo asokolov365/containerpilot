@@ -21,7 +21,7 @@ func TestVaultObjectParse(t *testing.T) {
 	}
 	rawCfgStr := "http://vault:8200"
 	_, err = NewVault(rawCfgStr)
-	assert.Error(t, err, "no vault token defined")
+	assert.EqualError(t, err, "no vault token defined")
 
 	os.Setenv("VAULT_TOKEN", "myTestToken")
 	defer os.Unsetenv("VAULT_TOKEN")
@@ -127,7 +127,6 @@ func testVaultCheckForChanges(testServer *TestServer) func(*testing.T) {
 		if err != nil {
 			t.Errorf("unable to create vault %v", err)
 		}
-		// secret := generateServiceDefinition(path, vault)
 		if changed, _ := vault.CheckForUpstreamChanges(path, ""); changed {
 			t.Fatalf("First read of %s should show `false` for change", path)
 		}
@@ -159,5 +158,63 @@ func testVaultCheckForChanges(testServer *TestServer) func(*testing.T) {
 		if changed, _ := vault.CheckForUpstreamChanges(path, "foo"); changed {
 			t.Errorf("%s field 'foo' should not have changed after second write", path)
 		}
+	}
+}
+
+func TestWithVaultFailed(t *testing.T) {
+	os.Setenv("VAULT_TOKEN", "myTestToken")
+	defer os.Unsetenv("VAULT_TOKEN")
+	testServer, err := NewTestServer(8200)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer testServer.Stop()
+	testServer.WaitForAPI()
+
+	path := "secret/data/test"
+	vault, err := NewVault(testServer.HTTPAddr)
+	if err != nil {
+		t.Errorf("unable to create vault %v", err)
+	}
+
+	if changed, _ := vault.CheckForUpstreamChanges(path, ""); changed {
+		t.Fatalf("First read of %s should show `false` for change", path)
+	}
+
+	data := make(map[string]interface{})
+	data["data"] = map[string]interface{}{
+		"foo":     "bar",
+		"version": 1,
+	}
+	_, err = vault.Logical().Write(path, data)
+	if err != nil {
+		t.Errorf("unable to write secret to vault: %v", err)
+	}
+
+	if changed, _ := vault.CheckForUpstreamChanges(path, ""); changed {
+		t.Errorf("%s should not have changed after first write", path)
+	}
+
+	testServer.Stop()
+
+	if changed, healthy := vault.CheckForUpstreamChanges(path, ""); changed || healthy {
+		t.Errorf("%s should not have changed or healthy while vault is down", path)
+	}
+
+	testServer, err = NewTestServer(8200)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer testServer.Stop()
+	testServer.WaitForAPI()
+
+	_, err = vault.Logical().Write(path, data)
+	if err != nil {
+		t.Errorf("unable to write secret to vault: %v", err)
+	}
+
+	changed, healthy := vault.CheckForUpstreamChanges(path, "")
+	if changed || !healthy {
+		t.Errorf("%s should not have changed or not healthy after vault is restarted", path)
 	}
 }

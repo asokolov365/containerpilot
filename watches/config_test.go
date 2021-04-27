@@ -9,12 +9,15 @@ import (
 
 	"github.com/asokolov365/containerpilot/surveillee"
 	"github.com/asokolov365/containerpilot/tests"
+	"github.com/asokolov365/containerpilot/tests/mocks"
 )
+
+var noop = &mocks.NoopDiscoveryBackend{}
 
 func TestWatchesParse(t *testing.T) {
 	data, _ := ioutil.ReadFile(fmt.Sprintf("./testdata/%s.json5", t.Name()))
 	testCfg := tests.DecodeRawToSlice(string(data))
-	survSvcs := surveillee.NewServices(nil, nil, nil)
+	survSvcs := surveillee.NewServices(noop, nil, nil)
 	watches, err := NewConfigs(testCfg, survSvcs)
 	if err != nil {
 		t.Fatal(err)
@@ -34,10 +37,24 @@ func TestWatchesParse(t *testing.T) {
 
 func TestWatchesConfigError(t *testing.T) {
 
-	_, err := NewConfigs(tests.DecodeRawToSlice(`[{"name": ""}]`), nil)
-	assert.Error(t, err, "'name' must not be blank")
-
-	_, err = NewConfigs(tests.DecodeRawToSlice(
-		`[{"name": "myName"}]`), nil)
-	assert.Error(t, err, "watch[myName].interval must be > 0")
+	expectErr := func(test, errMsg string) {
+		testCfg := tests.DecodeRawToSlice(test)
+		_, err := NewConfigs(testCfg, surveillee.NewServices(nil, nil, nil))
+		assert.EqualError(t, err, errMsg)
+	}
+	expectErr(
+		`[{name: ""}]`,
+		"'name' must not be blank")
+	expectErr(
+		`[{name: "myName"}]`,
+		"watch[myName].interval must be > 0")
+	expectErr(
+		`[{name: "myName", interval: 10}]`,
+		"watch[myName].source is consul but consul config is not defined")
+	expectErr(
+		`[{name: "myName", interval: "xx"}]`,
+		"Watch configuration error: 1 error(s) decoding:\n\n* cannot parse '[0].interval' as int: strconv.ParseInt: parsing \"xx\": invalid syntax")
+	expectErr(
+		`[{name: "myName", source: "vault", interval: 10}]`,
+		"watch[myName].source is vault but vault config is not defined")
 }

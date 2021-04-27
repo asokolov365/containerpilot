@@ -72,7 +72,7 @@ func (cfg *Config) ToJobConfig() *jobs.Config {
 	if version.Version != "" {
 		cfg.Tags = append(cfg.Tags, version.Version)
 	}
-	service := &jobs.Config{
+	jobConfig := &jobs.Config{
 		Name: "containerpilot", // TODO: hard-coded?
 		Health: &jobs.HealthConfig{
 			TTL:       15, // TODO: hard-coded?
@@ -82,5 +82,5 @@ func (cfg *Config) ToJobConfig() *jobs.Config {
 		Port:       cfg.Port,
 		Tags:       cfg.Tags,
 	}
-	return service
+	return jobConfig
 }

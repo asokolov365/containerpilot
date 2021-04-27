@@ -38,8 +38,14 @@ func NewConfigs(raw []interface{}, survSvcs *surveillee.Services) ([]*Config, er
 }
 
 // Validate ensures Config meets all requirements and assigns surveilService
-// accordingly to Source field.
+// accordingly to the Source field.
 func (cfg *Config) Validate(survSvcs *surveillee.Services) error {
+	if cfg.Name == "" {
+		return fmt.Errorf("'name' must not be blank")
+	}
+	if cfg.Source == "" {
+		cfg.Source = "consul"
+	}
 	cfg.serviceName = cfg.Name
 	cfg.Name = "watch." + cfg.Name
 
@@ -48,6 +54,9 @@ func (cfg *Config) Validate(survSvcs *surveillee.Services) error {
 	}
 	switch cfg.Source {
 	case "consul":
+		if survSvcs.Discovery == nil || reflect.ValueOf(survSvcs.Discovery).IsNil() {
+			return fmt.Errorf("watch[%s].source is consul but consul config is not defined", cfg.serviceName)
+		}
 		cfg.surveilService = survSvcs.Discovery
 	case "vault":
 		if survSvcs.SecretStorage == nil || reflect.ValueOf(survSvcs.SecretStorage).IsNil() {
@@ -57,7 +66,7 @@ func (cfg *Config) Validate(survSvcs *surveillee.Services) error {
 	case "file":
 		cfg.surveilService = survSvcs.FileWatcher
 	default:
-		cfg.surveilService = survSvcs.Discovery
+		return fmt.Errorf("watch[%s].source must be consul|vault|file but got %s", cfg.serviceName, cfg.Source)
 	}
 	if err := services.ValidateName(cfg.serviceName, cfg.Source); err != nil {
 		return err

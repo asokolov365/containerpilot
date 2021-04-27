@@ -126,7 +126,7 @@ func TestValidConfigWatches(t *testing.T) {
 	watch2 := cfg.Watches[2]
 	watch3 := cfg.Watches[3]
 	assert.Equal(t, watch0.Name, "watch.upstreamA", "config for Name")
-	assert.Equal(t, watch0.Source, "", "config for Source")
+	assert.Equal(t, watch0.Source, "consul", "config for Source")
 	assert.Equal(t, watch0.Poll, 11, "config for Poll")
 	assert.Equal(t, watch0.Tag, "dev", "config for Tag")
 
@@ -175,13 +175,13 @@ func TestCustomConfigControl(t *testing.T) {
 
 func TestInvalidRenderConfigFileMissing(t *testing.T) {
 	err := RenderConfig("/xxxx", "-")
-	assert.Error(t, err,
+	assert.EqualError(t, err,
 		"could not read config file: open /xxxx: no such file or directory")
 }
 
 func TestInvalidRenderConfigOutputMissing(t *testing.T) {
 	err := RenderConfig("./testdata/test.json5", "./xxxx/xxxx")
-	assert.Error(t, err,
+	assert.EqualError(t, err,
 		"could not write config file: open ./xxxx/xxxx: no such file or directory")
 }
 
@@ -247,7 +247,7 @@ func TestConfigWithVault(t *testing.T) {
 	os.Unsetenv("VAULT_TOKEN")
 	template, _ := renderConfigTemplate([]byte(testJSON))
 	_, err := newConfig(template)
-	assert.Error(t, err, "no vault token defined")
+	assert.EqualError(t, err, "no vault token defined")
 
 	os.Setenv("VAULT_TOKEN", "myTestToken")
 	defer os.Unsetenv("VAULT_TOKEN")
@@ -274,7 +274,7 @@ func TestConfigWithOutVault(t *testing.T) {
 	}`
 	template, _ := renderConfigTemplate([]byte(testJSON))
 	_, err := newConfig(template)
-	assert.Error(t, err,
+	assert.EqualError(t, err,
 		"unable to parse watches: watch[secret/data/foo].source is vault but vault config is not defined")
 }
 

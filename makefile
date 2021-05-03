@@ -59,7 +59,7 @@ release: build
 	mkdir -p release
 	git tag $(VERSION)
 	git push --tags
-	cd build && tar -cfz ../release/containerpilot-$(VERSION).tar.gz containerpilot
+	cd build && tar -czf ../release/containerpilot-$(VERSION).tar.gz containerpilot
 	@echo
 	@cd release && shasum containerpilot-$(VERSION).tar.gz
 	@cd release && shasum containerpilot-$(VERSION).tar.gz > containerpilot-$(VERSION).sha1.txt

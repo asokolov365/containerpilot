@@ -1,3 +1,12 @@
+## 4.1.0 (May 2, 2021)
+
+FEATURES:
+
+- Introduced VaultWatcher. Watches now can watch arbitrary paths for changes in Vault
+- docs: Updated documentation
+
+SHA1 3765c413fdc1168d5ab481885c642f7582f40e5c
+
 ## 4.0.0 (April 20, 2021)
 
 FEATURES:

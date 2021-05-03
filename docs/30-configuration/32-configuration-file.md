@@ -32,6 +32,7 @@ The following is a completed example of the JSON5 file configuration schema, wit
 ```json5
 {
   consul: "localhost:8500",
+  vault: "http://localhost:8200",
   logging: {
     level: "INFO",
     format: "default",
@@ -133,9 +134,27 @@ The following is a completed example of the JSON5 file configuration schema, wit
       timeout: "10s"
     },
     {
+      name: "reload-app-on-password-change",
+      when: {
+        source: "watch.secret/data/database",
+        each: "changed"
+      },
+      exec: "/usr/local/bin/reload-app.sh",
+      timeout: "10s"
+    },
+    {
       name: "reload-nginx",
       when: {
         source: "watch.nginx",
+        each: "changed"
+      },
+      exec: "/usr/local/bin/reload-nginx.sh",
+      timeout: "30s"
+    },
+    {
+      name: "reload-nginx-on-certificate-change",
+      when: {
+        source: "watch./etc/ssl/cert.pem",
         each: "changed"
       },
       exec: "/usr/local/bin/reload-nginx.sh",
@@ -157,7 +176,19 @@ The following is a completed example of the JSON5 file configuration schema, wit
     },
     {
       name: "nginx",
+      source: "consul",
       interval: 30
+    },
+    {
+      name: "secret/data/database",
+      source: "vault",
+      tag: "password",
+      interval: 5
+    },
+    {
+      name: "/etc/ssl/cert.pem",
+      source: "file",
+      interval: 5
     }
   ],
   control: {
@@ -184,6 +215,12 @@ ContainerPilot uses Hashicorp's [Consul](https://www.consul.io/) to register job
 
 [Read more](./33-consul.md).
 
+### Vault
+
+ContainerPilot uses Hashicorp's [Vault](https://www.vault.io/) to watch secrets if necessary. Watches look to Vault to check if a secret has been changed.
+
+[Read more](./40-vault.md).
+
 ### Logging
 
 The optional logging config adjusts the output format and verbosity of ContainerPilot logs. The default behavior is to log to `stdout` at `INFO` using the go [LstdFlags](https://golang.org/pkg/log/) format.
@@ -198,7 +235,12 @@ Jobs are the core user-defined concept in ContainerPilot. A job is a process and
 
 ### Watches
 
-A watch is a configuration of a service to watch in Consul. The watch monitors the state of the service and emits events when the service becomes healthy, becomes unhealthy, or has a change in the number of instances. Note that a watch does not include a behavior; watches only emit the event so that jobs can consume that event.
+A watch is a configuration of a surveillance entity such as a service to watch in Consul, a secret to watch in Vault, or a file to watch in local file system.
+- The Consul watch monitors the state of the service and emits events when the service becomes healthy, becomes unhealthy, or has a change in the number of instances.
+- The Vault watch monitors the entire secret or a field of the secret and emits events when the secret has a change.
+- The File watch monitors the state of the file and emits events when the file has been changed.
+
+Note that a watch does not include a behavior; watches only emit the event so that jobs can consume that event.
 
 [Read more](./35-watches.md).
 

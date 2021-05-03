@@ -1,6 +1,6 @@
 # Contents
 
-ContainerPilot is an init system designed to live inside the container. It acts as a process supervisor, reaps zombies, run health checks, registers the app in the service catalog, watches the service catalog for changes, and runs your user-specified code at events in the lifecycle of the container to make it all work right. ContainerPilot uses Consul to coordinate global state among the application containers.
+ContainerPilot is an init system designed to live inside the container. It acts as a process supervisor, reaps zombies, run health checks, registers the app in the service catalog, watches the service catalog or secrets storage or arbitrary files for changes, and runs your user-specified code at events in the lifecycle of the container to make it all work right. ContainerPilot uses Consul to coordinate global state among the application containers.
 
 [Lifecycle](./10-lifecycle.md)
 - [What is a job?](./10-lifecycle.md#what-is-a-job)
@@ -22,6 +22,7 @@ Configuration
 - [Configuration file](./30-configuration/32-configuration-file.md)
   - [Schema](./30-configuration/32-configuration-file.md#schema)
     - [Consul](./30-configuration/32-configuration-file.md#consul)
+    - [Vault](./30-configuration/32-configuration-file.md#vault)
     - [Logging](./30-configuration/32-configuration-file.md#logging)
     - [Jobs](./30-configuration/32-configuration-file.md#jobs)
     - [Watches](./30-configuration/32-configuration-file.md#watches)
@@ -34,6 +35,8 @@ Configuration
 - [Consul](./30-configuration/33-consul.md)
   - [Client configuration](./30-configuration/33-consul.md#client-configuration)
   - [Consul agent configuration](./30-configuration/33-consul.md#consul-agent-configuration)
+- [Vault](./30-configuration/40-vault.md)
+  - [Client configuration](./30-configuration/40-vault.md#client-configuration)
 - [Jobs](./30-configuration/34-jobs.md)
   - [Lifecycle Events](./30-configuration/34-jobs.md#lifecycle-events)
   - [Configuration](./30-configuration/34-jobs.md#configuration)

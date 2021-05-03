@@ -1,6 +1,6 @@
 # Lifecycle
 
-ContainerPilot was created to manage the lifecycle of an application -- what happens when an instance of an application is created, what happens while it does work, and what happens when the instance is destroyed. The details differ based on the configuration of [jobs](#what-is-a-job) and [events that trigger or are triggered by jobs](#what-is-an-event). The application instance is tied together with other instances via [watching](#what-is-a-watch) the external service discovery catalog (Consul).
+ContainerPilot was created to manage the lifecycle of an application -- what happens when an instance of an application is created, what happens while it does work, and what happens when the instance is destroyed. The details differ based on the configuration of [jobs](#what-is-a-job) and [events that trigger or are triggered by jobs](#what-is-an-event). The application instance is tied together with other instances via [watching](#what-is-a-watch) the external service discovery catalog (Consul). The application instance can quickly change its settings or behavior via [watching] (#what-is-a-watch) secrets storage (Vault) or just arbitrary files.
 
 
 ## What is a job?
@@ -24,7 +24,12 @@ Events are internal to a single instance of ContainerPilot; they are not shared 
 
 ## What is a watch?
 
-A watch is a configuration of a service to monitor in Consul. The watch monitors the state of the service and emits events when the service becomes healthy, becomes unhealthy, or has a change in the number of instances. Note that a watch does not include a behavior; watches only emit the event so that jobs can consume that event.
+A watch is a configuration of a service to monitor. There are three types of watches supported in this fork of ContainerPilot.
+- The Consul watch monitors the state of the service and emits events when the service becomes healthy, becomes unhealthy, or has a change in the number of instances.
+- The Vault watch monitors the entire secret or a field of the secret and emits events when the secret has a change.
+- The File watch monitors the state of the file and emits events when the file has been changed.
+
+Note that a watch does not include a behavior; watches only emit the event so that jobs can consume that event.
 
 
 ## How do events trigger jobs?

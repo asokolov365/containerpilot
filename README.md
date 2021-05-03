@@ -2,29 +2,30 @@
 
 *An init system for cloud-native distributed applications that automates the process of service discovery, configuration, and lifecycle management inside the container, so you can focus on your apps.*
 
-[![Build Status](https://travis-ci.org/joyent/containerpilot.svg)](https://travis-ci.org/joyent/containerpilot)
+[![Build Status](https://travis-ci.com/asokolov365/containerpilot.svg?branch=master)](https://travis-ci.org/asokolov365/containerpilot)
 [![MPL licensed](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://github.com/asokolov365/containerpilot/blob/master/LICENSE)
 [![GoDoc](https://godoc.org/github.com/asokolov365/containerpilot?status.svg)](https://godoc.org/github.com/asokolov365/containerpilot)
 
 ## What is ContainerPilot?
 
-Orchestration is the automation of the operations of an application. Most application require operational tasks like connecting them to related components ([WordPress needs to know where it's MySQL and Memcached servers are, for example](https://www.joyent.com/blog/wordpress-on-autopilot)), and some applications require special attention as they start up or shut down to be sure they bootstrap correctly or persist their data. We can do all that by hand, but modern applications automate those tasks in code. That's called "orchestration."
+Orchestration is the automation of the operations of an application. Most application require operational tasks like connecting them to related components ([WordPress needs to know where it's MySQL and Memcached servers are, for example](https://www.joyent.com/blog/wordpress-on-autopilot)), certificates management, and some applications require special attention as they start up or shut down to be sure they bootstrap correctly or persist their data. We can do all that by hand, but modern applications automate those tasks in code. That's called "orchestration."
 
 To make this work, every application needs to do the following (at a minimum):
 
 - Register itself in a service catalog (like Consul or Etcd) for use by other apps
 - Look to the service catalog to find the apps it depends on
-- Configure itself when the container starts, and reconfigure itself over time
+- Configure itself when the container starts
+- Reconfigure itself if dependencies change
 
 We can write our new applications to do that, but existing apps will need some help. We can wrap each application in a shell script that registers itself with the discovery service easily enough, but watching for changes to that service and ensuring that health checks are being made is more complicated. We can put a second process in the container, but as soon as we do that we need an init system running inside the container as well.
 
 ### ContainerPilot to the rescue!
 
-ContainerPilot is an init system designed to live inside the container. It acts as a process supervisor, reaps zombies, run health checks, registers the app in the service catalog, watches the service catalog for changes, and runs your user-specified code at events in the lifecycle of the container to make it all work right. ContainerPilot uses Consul to coordinate global state among the application containers.
+ContainerPilot is an init system designed to live inside the container. It acts as a process supervisor, reaps zombies, run health checks, registers the app in the service catalog, watches the service catalog or secret storage or just arbitrary files for changes, and runs your user-specified code at events in the lifecycle of the container to make it all work right. ContainerPilot uses Consul to coordinate global state among the application containers. This fork of ContainerPilot can also watch Vault and local files for changes.
 
 ## Quick Start Guide
 
-Check out our ["Hello, World" application](https://github.com/autopilotpattern/hello-world) on GitHub. Assuming you have Docker and Docker Compose available, it's as easy as:
+Check out the Autopilot Pattern ["Hello, World" application](https://github.com/autopilotpattern/hello-world) on GitHub. Assuming you have Docker and Docker Compose available, it's as easy as:
 
 ```
 git clone git@github.com:autopilotpattern/hello-world.git
@@ -39,7 +40,7 @@ You can also [download](https://github.com/asokolov365/containerpilot/releases) 
 
 ## Documentation
 
-Documentation for ContainerPilot and where it fits with the rest of the Triton ecosystem can be found at [www.joyent.com/containerpilot](https://www.joyent.com/containerpilot). The index below links to the documentation in this repo for convenience.
+Documentation for the original Joyent ContainerPilot and where it fits with the rest of the Triton ecosystem can be found at [www.joyent.com/containerpilot](https://www.joyent.com/containerpilot). The index below links to the documentation of this fork of ContainerPilot.
 
 [Lifecycle](./docs/10-lifecycle.md)
 - [What is a job?](./docs/10-lifecycle.md#what-is-a-job)
@@ -100,11 +101,11 @@ Configuration
 - [Contributing](./docs/40-support.md#contributing)
 - [Backwards compatibility](./docs/40-support.md#backwards-compatibility)
 
-You might also read [our guide building self-operating applications with ContainerPilot](https://www.joyent.com/blog/applications-on-autopilot) and look at the examples below.
+You might also read [Joyent's guide building self-operating applications with ContainerPilot](https://www.joyent.com/blog/applications-on-autopilot) and look at the examples below.
 
 ## Examples
 
-We've published a number of example applications demonstrating how ContainerPilot works.
+Joyent's published a number of example applications demonstrating how ContainerPilot works.
 
 - [Applications on autopilot: a guide to how to build self-operating applications with ContainerPilot](https://www.joyent.com/blog/applications-on-autopilot)
 - [MySQL (Percona Server) with auto scaling and fail-over](https://www.joyent.com/blog/dbaas-simplicity-no-lock-in)

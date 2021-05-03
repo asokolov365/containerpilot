@@ -115,7 +115,6 @@ watches: [
   {
     name: "/etc/ssl/cert.pem",
     source: "file",
-    tag: "password",
     interval: 60
   }
 ]

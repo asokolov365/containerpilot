@@ -4,7 +4,7 @@ BUG FIXES:
 
 - Vault address can be defined as URI
 
-SHA1 20561d64b3fb5900ca5496769dc1ceaac8f9d762
+SHA1 9809de01fa2ed900ed3528cb1e53bd3ce04683b1
 
 ## 4.1.0 (May 2, 2021)
 

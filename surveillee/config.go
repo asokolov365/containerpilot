@@ -77,7 +77,13 @@ func vaultConfigFromMap(raw map[string]interface{}) (*api.Config, string, error)
 	}
 	tlsConfig := getVaultTLSConfig(parsed)
 	config := api.DefaultConfig()
-	config.Address = parsed.Scheme + "://" + parsed.Address
+	// in case if parsed.Address is defined as an URI
+	address, scheme := parseRawVaultURI(parsed.Address)
+	if parsed.Scheme == "" {
+		config.Address = scheme + "://" + address
+	} else {
+		config.Address = parsed.Scheme + "://" + address
+	}
 	if err := config.ConfigureTLS(tlsConfig); err != nil {
 		return nil, "", err
 	}

@@ -11,8 +11,16 @@ import (
 func TestVaultObjectParse(t *testing.T) {
 	var err error
 	rawCfgMap := map[string]interface{}{
-		"address": "vault:8201",
+		"address": "vault:8200",
 		"scheme":  "https",
+		"token":   "s.smbuEimMcVx3lzk4EdyxxHi7",
+	}
+	_, err = NewVault(rawCfgMap)
+	if err != nil {
+		t.Fatalf("unable to parse config: %v", err)
+	}
+	rawCfgMap = map[string]interface{}{
+		"address": "https://vault:8200",
 		"token":   "s.smbuEimMcVx3lzk4EdyxxHi7",
 	}
 	_, err = NewVault(rawCfgMap)
